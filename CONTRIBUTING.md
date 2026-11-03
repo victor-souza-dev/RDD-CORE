@@ -1,523 +1,208 @@
-[![English](https://img.shields.io/badge/lang-English-blue.svg)](CONTRIBUTING.en.md)
-[![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-brightgreen.svg)](CONTRIBUTING.md)
+[![English](https://img.shields.io/badge/lang-English-brightgreen.svg)](CONTRIBUTING.md)
+[![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-blue.svg)](CONTRIBUTING.pt-br.md)
 
-# CONTRIBUTING — Open Core do Workflow RDD
+# CONTRIBUTING — Open Core of the RDD Workflow
 
-## Open Core: como funciona
+> **Note:** this English version is the default. A PT-BR translation is
+> available at `CONTRIBUTING.pt-br.md`.
 
-O desenvolvimento acontece no repositório **privado** `TM.CORE.RDD` — é lá que
-internos criam skills, subagents e melhorias. As releases públicas são
-**snapshots limpos** do "subset essencial" (agents, skills, registry, templates,
-evals e docs de contribuição) publicados no repositório **público**
-`victor-souza-dev/RDD-CORE`.
+## Open Core: how it works
 
-Contribuições externas entram via **PR no `rdd-core`** (público). Os
-mantenedores portam a contribuição aceita para o `TM.CORE.RDD` (privado) e
-publicam a próxima release. Histórico interno (IMP, ADR, quality, reports)
-nunca aparece no repositório público — cada release é um snapshot, não um
-mirror do git interno.
+Development happens in the **private** `TM.CORE.RDD` repository — that's where
+internal contributors create skills, subagents and improvements. Public
+releases are **clean snapshots** of the "essential subset" (agents, skills,
+registry, templates, evals and contribution docs) published to the **public**
+repository `victor-souza-dev/RDD-CORE`.
 
-## Contribuindo (externos)
+External contributions come in via **PR to `rdd-core`** (public). Maintainers
+port the accepted contribution to `TM.CORE.RDD` (private) and publish the next
+release. Internal history (IMP, ADR, quality, reports) never appears in the
+public repository — each release is a snapshot, not a mirror of the internal
+git.
 
-Fluxo para contribuidores externos:
+## Contributing (external)
 
-1. Faça um **fork** do `rdd-core`.
-2. Crie uma **branch** para sua mudança.
-3. Faça uma mudança **generalizada e anonimizada** — nada de conteúdo de
-   cliente específico (o conhecimento de cliente pertence aos packs, que são
-   privados).
-4. Passe pelo **checklist de anonimização** (abaixo) — obrigatório no PR.
-5. Rode o gate localmente: `bash evals/neutrality/scan.sh` — deve terminar com
-   `neutrality: OK`. **PASS** é pré-condição do PR.
-6. Faça commit com **sign-off DCO** (`git commit -s`) e abra o **PR**.
+Flow for external contributors:
 
-> **Nota:** skills e agents citam paths do runtime (`rules/`, `packs/`,
-> `.rdd/` etc.). PRs que alteram a estrutura de componentes quebram o
-> `registry.yaml` — nesse caso o PR precisa incluir o re-render das views
-> (skill `rdd-registry-render`).
+1. **Fork** `rdd-core`.
+2. Create a **branch** for your change.
+3. Make a **generalized and anonymized** change — no client-specific content
+   (client knowledge belongs to packs, which are private).
+4. Go through the **anonymization checklist** (below) — mandatory in the PR.
+5. Run the gate locally: `bash evals/neutrality/scan.sh` — it must end with
+   `neutrality: OK`. **PASS is a PR precondition.**
+6. Commit with **DCO sign-off** (`git commit -s`) and open the **PR**.
 
-## Sua instância roda em Azure DevOps ou GitLab?
+> **Note:** skills and agents reference runtime paths (`rules/`, `packs/`,
+> `.rdd/` etc.). PRs that change the component structure break
+> `registry.yaml` — in that case the PR must include the view re-render
+> (`rdd-registry-render` skill).
 
-O repo público vive no GitHub — mas nada impede que sua instância privada do
-RDD rode em outra plataforma (Azure DevOps, GitLab, servidor próprio). Nesse
-caso, mantenha dois ambientes com papéis distintos:
+### Running your instance on Azure DevOps or GitLab?
 
-- **Instância privada (Azure DevOps/GitLab):** sua camada da organização —
-  packs, perfil de clientes, nuances de conhecimento. É onde o dia a dia roda.
-- **Fork no GitHub:** a ponte de contribuição — é o único lugar de onde uma
-  melhoria entra no open core (via PR, com CI de evals como gate).
+The public repo lives on GitHub — but nothing stops your private RDD instance
+from running on another platform (Azure DevOps, GitLab, self-hosted). Keep two
+environments with distinct roles:
 
-### Melhoria genérica? Contribua de volta
+- **Private instance (Azure DevOps/GitLab):** your organization layer —
+  packs, client profiles, knowledge nuances. Day-to-day runs here.
+- **GitHub fork:** the contribution bridge — it's the only place an
+  improvement enters the open core (via PR, with the evals CI as gate).
 
-Melhorias ao MOTOR (skills, agents, scripts, knowledge T1 genérico) devem
-subir para o seu fork no GitHub e virar PR para o `rdd-core` — mesmo fluxo
-dos contribuidores externos acima (anonimização + neutrality + DCO). Se a
-melhoria nasceu dentro da sua instância privada, extraia-a para um clone do
-seu fork e aplique no subset genérico: o que é específico da sua organização
-permanece na sua camada privada; o que é genérico volta para todos.
+### Generic improvement? Contribute it back
 
-### Sincronizando sua instância com as releases públicas
+Improvements to the ENGINE (skills, agents, scripts, generic T1 knowledge)
+should go to your GitHub fork and become a PR to `rdd-core` — same flow as
+the external contributors above (anonymization + neutrality + DCO). If the
+improvement was born inside your private instance, extract it to a clone of
+your fork and apply it to the generic subset: what's specific to your
+organization stays in your private layer; what's generic goes back to
+everyone.
 
-O modelo snapshot facilita: cada release pública é um estado completo e
-limpo do subset genérico. Na sua instância privada, adicione o repo público
-como remote e absorva as releases por diff/merge seletivo do subset:
+### Syncing your instance with public releases
+
+The snapshot model makes it easy: every public release is a complete, clean
+state of the generic subset. In your private instance, add the public repo as
+a remote and absorb releases via selective diff/merge of the subset:
 
 ```bash
 git remote add upstream https://github.com/victor-souza-dev/RDD-CORE.git
 git fetch upstream
-# compare o subset (agents/, skills/, knowledge/...) com sua camada e
-# absorva seletivamente o que fizer sentido para a sua organização
+# compare the subset (agents/, skills/, knowledge/...) with your layer and
+# selectively absorb what makes sense for your organization
 ```
 
-> **Regra de bolso:** melhoria genérica no motor → sobe para o público (PR).
-> Conteúdo de cliente/org → fica na sua camada privada (nunca sobe).
+> **Rule of thumb:** generic engine improvement → up to the public repo (PR).
+> Client/org content → stays in your private layer (never goes up).
 
-## Checklist de anonimização (obrigatória no PR)
+## Anonymization checklist (mandatory in the PR)
 
-Marque cada item. **Qualquer "sim" → generalize ou não envie o PR.**
+Check each item. **Any "yes" → generalize or don't submit the PR.**
 
-- [ ] Contém nomes de clientes, organizações ou produtos reais?
-- [ ] Contém URLs, domínios ou e-mails reais?
-- [ ] Contém nomes de pessoas?
-- [ ] Contém números de processo, contrato, CNPJ/CPF ou inscrições?
-- [ ] Contém codinomes de sistemas internos ou prefixos de repo do cliente?
-- [ ] Contém caminhos de rede, IPs ou credenciais/tokens (mesmo truncados)?
-- [ ] Contém prints ou diagramas com marca?
-- [ ] Contém datas + fatos que identifiquem um cliente?
+- [ ] Contains real client, organization or product names?
+- [ ] Contains real URLs, domains or e-mails?
+- [ ] Contains people's names?
+- [ ] Contains process, contract numbers, CNPJ/CPF or registry IDs?
+- [ ] Contains internal system codenames or client repo prefixes?
+- [ ] Contains network paths, IPs or credentials/tokens (even truncated)?
+- [ ] Contains screenshots or diagrams with branding?
+- [ ] Contains dates + facts that identify a client?
 
 ## DCO (Developer Certificate of Origin)
 
-Todo commit precisa de um `Signed-off-by` — use `git commit -s`. Ao assinar,
-você certifica que tem o direito de submeter a contribuição sob a licença do
-projeto, conforme o [Developer Certificate of Origin](https://developercertificate.org/).
+Every commit needs a `Signed-off-by` — use `git commit -s`. By signing, you
+certify you have the right to submit the contribution under the project's
+license, per the [Developer Certificate of Origin](https://developercertificate.org/).
 
-**Não usamos CLA** — a única barreira para contribuir é o sign-off DCO.
+**We don't use a CLA** — the only barrier to contributing is the DCO sign-off.
 
-## Promovendo patterns (pack → hub)
+## Promoting patterns (pack → hub)
 
-Patterns validados em projetos reais podem ser promovidos da pattern library
-do pack (`accumulation/patterns/`) para o hub público `patterns/` do
-`rdd-core` — destino de patlets generalizados e anonimizados.
+Patterns validated in real projects can be promoted from the pack's pattern
+library (`accumulation/patterns/`) to the `rdd-core` public hub `patterns/` —
+the destination for generalized, anonymized patlets.
 
-**Fluxo de promoção:**
+**Promotion flow:**
 
-1. **Generalizar + anonimizar** — aplique o checklist de anonimização acima.
-   O patlet não pode carregar conteúdo de cliente.
-2. **Neutrality scan** — `bash evals/neutrality/scan.sh` deve terminar com
-   `neutrality: OK` (pré-condição do PR).
-3. **PR com o patlet** — formato em `patterns/TEMPLATE.md`; o CI valida o
-   front matter com `bash patterns/validate.sh`. O PR traz o checklist de
-   anonimização e o aceite da warranty (item 5).
-4. **Shepherd** — um revisor de empresa **diferente da origem** avalia a
-   aplicabilidade e a generalização antes da validação (modelo PLoP).
-5. **Warranty de 30 dias** — no aceite, `warranty_ate = data do aceite +
-   30 dias`; a empresa de origem corrige regressões do pattern nesse período
-   (modelo InnerSource). O PR de promoção inclui o aceite explícito desse
-   compromisso.
-6. **Aceite** — gates verdes + shepherd OK → pattern entra no
-   `patterns/INDEX.md` com status `accepted`.
+1. **Generalize + anonymize** — apply the anonymization checklist above. The
+   patlet must not carry client content.
+2. **Neutrality scan** — `bash evals/neutrality/scan.sh` must end with
+   `neutrality: OK` (PR precondition).
+3. **PR with the patlet** — format in `patterns/TEMPLATE.md`; CI validates the
+   front matter with `bash patterns/validate.sh`. The PR carries the
+   anonymization checklist and the explicit warranty acceptance (item 5).
+4. **Shepherd** — a reviewer from a company **different from the origin**
+   evaluates applicability and generalization before validation (PLoP model).
+5. **30-day warranty** — on acceptance, `warranty_ate = acceptance date +
+   30 days`; the origin company fixes pattern regressions in that period
+   (InnerSource model). The promotion PR includes explicit acceptance of this
+   commitment.
+6. **Acceptance** — gates green + shepherd OK → pattern enters
+   `patterns/INDEX.md` with `accepted` status.
 
-**Ciclo de vida** (`proposed → validated → accepted → superseded`):
-documentado no `patterns/TEMPLATE.md`; validação local com
-`bash patterns/validate.sh`.
+**Lifecycle** (`proposed → validated → accepted → superseded`): documented in
+`patterns/TEMPLATE.md`; local validation with `bash patterns/validate.sh`.
 
-**Decisões vigentes (proposta de 2026-10-26):**
+**Standing decisions (2026-10-26 proposal):**
 
-- **Mantenedor único no MVP** — merges no `rdd-core` aprovados pela TechMinds
-  (TC único; federação de TCs por domínio quando a 2ª empresa contribuir).
-- **Provenance nomeada com opt-in** — `origem` e `projetos_validacao`
-  identificam empresa e projetos de validação; `anonimo` é opção válida.
-- **Warranty fixa de 30 dias** — igual para todo pattern aceito.
-
----
-
-# CONTRIBUTING — Guia de Contribuição para o Workflow RDD
-
-Guia para quem quer contribuir com novas skills, subagents ou melhorias no workflow RDD.
+- **Single maintainer in the MVP** — merges to `rdd-core` approved by
+  TechMinds (single TC; TC federation per domain when the 2nd company
+  contributes).
+- **Named provenance with opt-in** — `origem` and `projetos_validacao`
+  identify company and validation projects; `anonimo` is a valid option.
+- **Fixed 30-day warranty** — equal for every accepted pattern.
 
 ---
 
-## Visão Geral
+# Contributing components to the RDD Workflow
 
-O workflow RDD é composto por três tipos de componentes:
+> The PT-BR version covers this part in more depth. Condensed guide for
+> creating new skills, subagents or workflow improvements.
 
-| Componente | O que é | Onde vive | Exemplo |
+## Overview
+
+The RDD workflow has three component types:
+
+| Component | What it is | Where it lives | Example |
 |------------|---------|-----------|---------|
-| **Primary Agent** | Persona ativa da sessão | `agents/<nome>.md` | `rdd-req.md`, `rdd-doc.md`, `rdd-dev.md` |
-| **Subagent** | Orquestrador de domínio | `agents/<nome>.md` | `@rdd-intake-orchestrator` |
-| **Skill** | Conhecimento de referência | `skills/<nome>/SKILL.md` | `rdd-requirements` |
+| **Primary Agent** | Active session persona | `agents/<name>.md` | `rdd-req.md`, `rdd-doc.md`, `rdd-dev.md` |
+| **Subagent** | Domain orchestrator | `agents/<name>.md` | `@rdd-intake-orchestrator` |
+| **Skill** | Reference knowledge | `skills/<name>/SKILL.md` | `rdd-requirements` |
 
----
+## Prerequisites
 
-## Pré-requisitos
+1. **Know RDD**: read `AGENTS.md`, `ARCHITECTURE.md` and `CHECKLISTS.md`
+2. **Have access to the RDD workflow repository** (`main` branch)
+3. **Know OpenCode**: front matter, tools, permissions
+4. **Available tools**: `@rdd-workflow-builder` (creates components),
+   `@rdd-workflow-improver` (fixes workflows)
 
-1. **Conhecer o RDD**: ler `AGENTS.md`, `ARCHITECTURE.md` e `CHECKLISTS.md`
-2. **Ter acesso ao repositório do workflow RDD** (branch `main`)
-3. **Conhecer o OpenCode**: entender front matter, tools, permissões
-4. **Ferramentas disponíveis**: `@rdd-workflow-builder` (cria componentes), `@rdd-workflow-improver` (corrige workflows)
+## Contribution flow
 
----
+1. **Identify the need** — does it already exist? (`ARCHITECTURE.md` §1-§3).
+   Bug → `@rdd-workflow-improver`. Improvement → register in
+   `WORKFLOW_IMPROVEMENTS.md` first (IMP-XXX format).
+2. **Scope the role** — what it does, which domain, who invokes it, which
+   skills it uses.
+3. **Create the component** — meta-skills: `rdd-skill-creator` (new skill),
+   `rdd-subagent-creator` (new subagent), `rdd-primary-agent-creator` (new
+   primary). Prefer `@rdd-workflow-builder`, which automates the flow.
+4. **Register in the map** — `ARCHITECTURE.md` sections + Mermaid diagram +
+   `registry.yaml` (see PT-BR guide for the exact registration table).
+5. **Test** — run the component in isolation, check skill invocations and
+   permissions, validate with `rdd-validate` if applicable.
+6. **Publish** — register the improvement in `WORKFLOW_IMPROVEMENTS.md`
+   (IMP-XXX with **Author**), use `rdd-core-publish` for commit + push.
 
-## Fluxo de Contribuição
+## Naming conventions
 
-### 1. Identificar a Necessidade
+- Skills: `rdd-<action>` — ex.: `rdd-requirements`, `rdd-data-model`,
+  `rdd-validate`
+- Subagents: `@rdd-<domain>-orchestrator` — ex.: `@rdd-intake-orchestrator`;
+  self-contained exceptions: `@rdd-next`, `@rdd-progress`,
+  `@rdd-cr-propagation-guard`
+- Primary agents: `rdd-<role>` — ex.: `rdd-req`, `rdd-doc`, `rdd-dev`
 
-Antes de criar algo novo, verifique:
-
-- **Já existe?** Consulte `ARCHITECTURE.md` §1-§3
-- **É uma correção?** Use `@rdd-workflow-improver` em vez de criar novo componente
-- **É uma melhoria?** Registre em `WORKFLOW_IMPROVEMENTS.md` primeiro
-
-### 2. Delimitar a Função
-
-Responda:
-
-- **O que o componente faz?** (1-2 frases)
-- **Qual domínio ele pertence?** (Intake, Requisitos, Tradução Técnica, Qualidade, Azure, etc.)
-- **Quem o invoca?** (primary agent ou subagent)
-- **Quais skills ele usa?** (se for subagent)
-
-### 3. Criar o Componente
-
-Use as skills meta do RDD:
-
-| O que criar | Skill a usar | Arquivo gerado |
-|-------------|--------------|----------------|
-| Nova skill | `rdd-skill-creator` | `skills/<nome>/SKILL.md` |
-| Novo subagent | `rdd-subagent-creator` | `agents/<nome>.md` |
-| Novo primary agent | `rdd-primary-agent-creator` | `agents/<nome>.md` |
-
-> **Importante:** O `@rdd-workflow-builder` automatiza esse fluxo. Prefira usá-lo.
-
-### 4. Registrar no Mapa
-
-Todo componente novo deve ser registrado em:
-
-| Arquivo | O que registrar |
-|---------|-----------------|
-| `ARCHITECTURE.md` | §1 (primary→subagents), §2 (subagent→skills), §3 (skill→domínio→acesso) |
-| `ARCHITECTURE.md` | nó no diagrama Mermaid + aresta de conexão |
-| `ARCHITECTURE.md` | nó + arestas de interação |
-| `registry.yaml` e primary agents | manifesto e tabela de subagents (se novo subagent) |
-| `AGENTS.md` | seção relevante (se mudança estrutural) |
-
-### 5. Testar
-
-1. Execute o componente isoladamente
-2. Verifique se invoca as skills corretas
-3. Verifique se as permissões estão corretas
-4. Valide com `rdd-validate` se aplicável
-
-### 6. Publicar
-
-1. Registre a melhoria em `WORKFLOW_IMPROVEMENTS.md` (formato IMP-XXX) —
-   inclua o campo `**Autor:** <operador>` com o valor do campo Nome de
-   `rules/operator-profile.md` (IMP-136; perfil ausente → informe quem
-   registrou)
-2. Use `rdd-core-publish` para commit + push
-3. Informe outros usuários (se aplicável)
-
----
-
-## Convenções de Nomenclatura
-
-### Skills
-
-```
-rdd-<ação>
-```
-
-Exemplos:
-- `rdd-requirements` (gera/requer requisitos)
-- `rdd-data-model` (gera modelo de dados)
-- `rdd-validate` (valida integridade)
-
-### Subagents
-
-```
-@rdd-<domínio>-orchestrator
-```
-
-Exemplos:
-- `@rdd-intake-orchestrator` (orquestra intake)
-- `@rdd-figma-orchestrator` (orquestra Figma)
-
-Exceções (auto-contidos):
-- `@rdd-next` (recomenda próxima skill)
-- `@rdd-progress` (dashboard de status)
-- `@rdd-cr-propagation-guard` (detecta artefatos stale)
-
-### Primary Agents
-
-```
-rdd-<função>
-```
-
-Exemplos:
-- `rdd-req` (requirements / discovery)
-- `rdd-doc` (documentation / engenharia reversa)
-- `rdd-dev` (development / implementação)
-
----
-
-## Estrutura de uma Skill
+## Skill structure
 
 ```yaml
 ---
-name: rdd-<nome>
-description: <descrição curta>
+name: rdd-<name>
+description: <short description>
 ---
 
-# rdd-<nome>
+# rdd-<name>
 
-## Lê
-- <arquivos que lê>
-
-## Gera
-- <arquivos que gera>
-
-## Nunca edita
-- <arquivos que nunca edita>
-
+## Reads (Lê)
+## Generates (Gera)
+## Never edits (Nunca edita)
 ## Tools
-- read: allow
-- write: allow
-- edit: allow
-- bash: deny
-- webfetch: deny
-
-## Modo de erro
-- <o que fazer quando algo falha>
-
-## Algoritmo / Workflow
-1. <passo 1>
-2. <passo 2>
-...
-
+## Error mode (Modo de erro)
+## Algorithm / Workflow
 ## Template
-<template do artefato gerado>
-
-## Formato de commit
-<convenção de commit>
-
-## Casos de borda
-- <caso 1>: <como tratar>
-- <caso 2>: <como tratar>
+## Commit format
 ```
 
----
-
-## Estrutura de um Subagent
-
-```yaml
----
-name: @rdd-<nome>
-description: <descrição curta>
-tools:
-  read: allow
-  write: allow
-  edit: allow
-  bash: deny
-  webfetch: deny
-  skill: allow
----
-
-# @rdd-<nome>
-
-## Identidade
-<quem é, qual seu papel>
-
-## Princípios
-- <princípio 1>
-- <princípio 2>
-
-## Lê
-- <arquivos que lê>
-
-## Gera
-- <arquivos que gera>
-
-## Nunca edita
-- <arquivos que nunca edita>
-
-## Skills disponíveis
-| Skill | Quando invocar |
-|-------|----------------|
-| `rdd-<skill1>` | <descrição> |
-| `rdd-<skill2>` | <descrição> |
-
-## Algoritmo
-1. <passo 1>
-2. <passo 2>
-...
-
-## Casos de borda
-- <caso 1>: <como tratar>
-```
-
----
-
-## Estrutura de um Primary Agent
-
-```yaml
----
-name: rdd-<nome>
-description: <descrição curta>
-mode: primary
-tools:
-  read: allow
-  write: allow
-  edit: allow
-  bash: allow
-  webfetch: allow
----
-
-# rdd-<nome>
-
-## Identidade
-<quem é, qual seu papel>
-
-## Princípios
-- <princípio 1>
-- <princípio 2>
-
-## Subagents
-
-| Subagent | Quando invocar |
-|----------|----------------|
-| `@rdd-<sub1>` | <descrição> |
-| `@rdd-<sub2>` | <descrição> |
-
-## Skills disponíveis
-| Skill | Quando invocar |
-|-------|----------------|
-| `rdd-<skill1>` | <descrição> |
-
-## Comportamento
-<como o agente se comporta>
-
-## Roteamento de domínio
-<como roteia pedidos para subagents>
-```
-
----
-
-## Permissões
-
-### Princípio do Menor Privilégio
-
-Cada componente deve ter apenas as permissões necessárias:
-
-| Permissão | Quando usar |
-|-----------|-------------|
-| `read: allow` | Sempre (leitura é segura) |
-| `write: allow` | Apenas quando o componente cria/edita arquivos |
-| `edit: allow` | Apenas quando o componente modifica arquivos existentes |
-| `bash: allow` | Apenas quando o componente precisa de comandos Git/shell |
-| `webfetch: allow` | Apenas quando o componente busca dados externos |
-| `skill: allow` | Apenas quando o componente invoca outras skills |
-
-### Exemplos de Permissões
-
-| Componente | read | write | edit | bash | webfetch | skill |
-|------------|------|-------|------|------|----------|-------|
-| `rdd-requirements` | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| `@rdd-intake-orchestrator` | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| `@rdd-azure-orchestrator` | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| `@rdd-workflow-builder` | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| `rdd-core-update` | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-
----
-
-## Formato de Commit
-
-Use Conventional Commits:
-
-```
-<tipo>(<escopo>): <descrição curta>
-
-[corpo opcional]
-
-[footer opcional]
-```
-
-### Tipos
-
-| Tipo | Quando usar |
-|------|-------------|
-| `feat` | Nova feature (skill, subagent, funcionalidade) |
-| `fix` | Correção de bug |
-| `docs` | Apenas documentação |
-| `refactor` | Refatoração sem mudança de comportamento |
-| `chore` | Manutenção, limpeza, dependências |
-
-### Exemplos
-
-```
-feat(rdd-azure-task-creator): adicionar gate de duplicidade
-fix(rdd-validate): corrigir validação de colunas de auditoria
-docs(ARCHITECTURE-MAP): registrar novo subagent
-refactor(rdd-workflow-builder): extrair lógica de inferência
-chore: atualizar dependências
-```
-
----
-
-## Revisão
-
-### Checklist para Revisão
-
-- [ ] Componente segue a convenção de nomenclatura
-- [ ] Permissões são mínimas necessárias
-- [ ] Registrado em ARCHITECTURE.md
-- [ ] Registrado em ARCHITECTURE.md
-- [ ] Registrado em ARCHITECTURE.md
-- [ ] Registrado no registry.yaml e primary agents (se subagent)
-- [ ] Testado isoladamente
-- [ ] WORKFLOW_IMPROVEMENTS.md atualizado (se correção)
-- [ ] Formato de commit correto
-
-### Quem Revisa
-
-- **Skills e subagents**: revisão pelo operador do workflow
-- **Primary agents**: revisão pelo operador + teste em ambiente de homologação
-- **Mudanças estruturais** (AGENTS.md, DECISIONS.md): revisão obrigatória
-
----
-
-## Perguntas Frequentes
-
-### Posso criar uma skill sem usar `rdd-skill-creator`?
-
-Sim, mas não é recomendado. A skill creator garante:
-- Front matter válido
-- Seções obrigatórias presentes
-- Consistência com o padrão RDD
-
-### Posso criar um subagent sem usar `@rdd-workflow-builder`?
-
-Sim, mas não é recomendado. O builder garante:
-- Registro em todos os arquivos necessários
-- Inferência correta de dependências
-- Zero referências quebradas
-
-### E se eu precisar de uma skill que não se encaixa em nenhum domínio existente?
-
-Crie um novo domínio. Registre em `ARCHITECTURE.md` §4 (Taxonomia de Domínios).
-
-### Posso editar AGENTS.md diretamente?
-
-Sim, mas com cuidado. AGENTS.md é a fonte de verdade para convenções. Edições devem ser:
-- Bem fundamentadas
-- Registradas em DECISIONS.md
-- Comunicadas a outros usuários
-
-### Como sei se minha mudança quebra algo?
-
-1. Execute `rdd-validate` no módulo afetado
-2. Verifique se alguma skill/subagent referencia o componente alterado
-3. Teste o fluxo completo (Intake → Requisitos → Tradução → Qualidade)
-
----
-
-*Este guia é mantido pela Quadri RDD (rdd-req, rdd-doc, rdd-dev, rdd-devops). Para dúvidas, consulte o `AGENTS.md` ou peça ajuda ao operador.*
+Section names are PT-BR in the shipped files (`Lê`, `Gera`,
+`Nunca edita`...) — keep the structure; new components follow the same
+section order. Full template in the PT-BR guide.
