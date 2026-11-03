@@ -33,6 +33,42 @@ Fluxo para contribuidores externos:
 > `registry.yaml` — nesse caso o PR precisa incluir o re-render das views
 > (skill `rdd-registry-render`).
 
+## Sua instância roda em Azure DevOps ou GitLab?
+
+O repo público vive no GitHub — mas nada impede que sua instância privada do
+RDD rode em outra plataforma (Azure DevOps, GitLab, servidor próprio). Nesse
+caso, mantenha dois ambientes com papéis distintos:
+
+- **Instância privada (Azure DevOps/GitLab):** sua camada da organização —
+  packs, perfil de clientes, nuances de conhecimento. É onde o dia a dia roda.
+- **Fork no GitHub:** a ponte de contribuição — é o único lugar de onde uma
+  melhoria entra no open core (via PR, com CI de evals como gate).
+
+### Melhoria genérica? Contribua de volta
+
+Melhorias ao MOTOR (skills, agents, scripts, knowledge T1 genérico) devem
+subir para o seu fork no GitHub e virar PR para o `rdd-core` — mesmo fluxo
+dos contribuidores externos acima (anonimização + neutrality + DCO). Se a
+melhoria nasceu dentro da sua instância privada, extraia-a para um clone do
+seu fork e aplique no subset genérico: o que é específico da sua organização
+permanece na sua camada privada; o que é genérico volta para todos.
+
+### Sincronizando sua instância com as releases públicas
+
+O modelo snapshot facilita: cada release pública é um estado completo e
+limpo do subset genérico. Na sua instância privada, adicione o repo público
+como remote e absorva as releases por diff/merge seletivo do subset:
+
+```bash
+git remote add upstream https://github.com/victor-souza-dev/RDD-CORE.git
+git fetch upstream
+# compare o subset (agents/, skills/, knowledge/...) com sua camada e
+# absorva seletivamente o que fizer sentido para a sua organização
+```
+
+> **Regra de bolso:** melhoria genérica no motor → sobe para o público (PR).
+> Conteúdo de cliente/org → fica na sua camada privada (nunca sobe).
+
 ## Checklist de anonimização (obrigatória no PR)
 
 Marque cada item. **Qualquer "sim" → generalize ou não envie o PR.**
