@@ -2,7 +2,7 @@
   <img src="assets/logo-rdd.png" alt="Logo RDD — pipeline Requisitos → Documentação → Desenvolvimento" width="480">
 </p>
 
-# RDD — Workflow RDD (Open Core)
+# RDD — Agentic Workflow
 
 **RDD (Requisitos, Documentação e Desenvolvimento)** é um workflow open core de
 engenharia de contexto para o [OpenCode](https://opencode.ai): orquestração de
