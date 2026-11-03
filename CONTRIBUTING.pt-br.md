@@ -155,7 +155,7 @@ O workflow RDD é composto por três tipos de componentes:
 ## Pré-requisitos
 
 1. **Conhecer o RDD**: ler `AGENTS.md`, `ARCHITECTURE.md` e `CHECKLISTS.md`
-2. **Ter acesso ao repositório do workflow RDD** (branch `main`)
+2. **Fork do repositório público** (`rdd-core`) — sua PR aterrissa lá
 3. **Conhecer o OpenCode**: entender front matter, tools, permissões
 4. **Ferramentas disponíveis**: `@rdd-workflow-builder` (cria componentes), `@rdd-workflow-improver` (corrige workflows)
 
@@ -169,7 +169,7 @@ Antes de criar algo novo, verifique:
 
 - **Já existe?** Consulte `ARCHITECTURE.md` §1-§3
 - **É uma correção?** Use `@rdd-workflow-improver` em vez de criar novo componente
-- **É uma melhoria?** Registre em `WORKFLOW_IMPROVEMENTS.md` primeiro
+- **É uma melhoria?** Abra uma issue primeiro descrevendo-a (o mantenedor registra o IMP internamente ao portar)
 
 ### 2. Delimitar a Função
 
@@ -213,11 +213,10 @@ Todo componente novo deve ser registrado em:
 
 ### 6. Publicar
 
-1. Registre a melhoria em `WORKFLOW_IMPROVEMENTS.md` (formato IMP-XXX) —
-   inclua o campo `**Autor:** <operador>` com o valor do campo Nome de
-   `rules/operator-profile.md` (IMP-136; perfil ausente → informe quem
-   registrou)
-2. Use `rdd-core-publish` para commit + push
+1. Push no seu fork e abra/atualize a PR — o mantenedor registra a melhoria
+   aceita internamente (IMP-XXX) ao portar para o core privado
+2. A CI de evals roda na PR (neutralidade + golden set + registry) — verde é
+   pré-condição do merge
 3. Informe outros usuários (se aplicável)
 
 ---
@@ -477,7 +476,7 @@ chore: atualizar dependências
 - [ ] Registrado em ARCHITECTURE.md
 - [ ] Registrado no registry.yaml e primary agents (se subagent)
 - [ ] Testado isoladamente
-- [ ] WORKFLOW_IMPROVEMENTS.md atualizado (se correção)
+- [ ] Issue aberta descrevendo a correção (o mantenedor registra o IMP internamente ao portar)
 - [ ] Formato de commit correto
 
 ### Quem Revisa

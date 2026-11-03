@@ -152,7 +152,7 @@ The RDD workflow has three component types:
 ## Prerequisites
 
 1. **Know RDD**: read `AGENTS.md`, `ARCHITECTURE.md` and `CHECKLISTS.md`
-2. **Have access to the RDD workflow repository** (`main` branch)
+2. **Fork the public repo** (`rdd-core`) — your PR lands there
 3. **Know OpenCode**: front matter, tools, permissions
 4. **Available tools**: `@rdd-workflow-builder` (creates components),
    `@rdd-workflow-improver` (fixes workflows)
@@ -160,8 +160,8 @@ The RDD workflow has three component types:
 ## Contribution flow
 
 1. **Identify the need** — does it already exist? (`ARCHITECTURE.md` §1-§3).
-   Bug → `@rdd-workflow-improver`. Improvement → register in
-   `WORKFLOW_IMPROVEMENTS.md` first (IMP-XXX format).
+   Bug → `@rdd-workflow-improver`. Improvement → open an issue first
+   describing it (the maintainer registers it internally when porting).
 2. **Scope the role** — what it does, which domain, who invokes it, which
    skills it uses.
 3. **Create the component** — meta-skills: `rdd-skill-creator` (new skill),
@@ -171,8 +171,8 @@ The RDD workflow has three component types:
    `registry.yaml` (see PT-BR guide for the exact registration table).
 5. **Test** — run the component in isolation, check skill invocations and
    permissions, validate with `rdd-validate` if applicable.
-6. **Publish** — register the improvement in `WORKFLOW_IMPROVEMENTS.md`
-   (IMP-XXX with **Author**), use `rdd-core-publish` for commit + push.
+6. **Publish** — push to your fork and open/update the PR. The maintainer
+   registers the accepted improvement internally (IMP-XXX) when porting.
 
 ## Naming conventions
 

@@ -5,7 +5,7 @@
 [![English](https://img.shields.io/badge/lang-English-blue.svg)](README.md)
 [![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-brightgreen.svg)](README.pt-br.md)
 
-# RDD — Workflow Agêntico (Open Core)
+# RDD — Workflow RDD (Open Core)
 
 **RDD (Requisitos, Documentação e Desenvolvimento)** é um workflow open core de
 engenharia de contexto para o [OpenCode](https://opencode.ai): orquestração de
