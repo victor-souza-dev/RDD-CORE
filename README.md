@@ -13,7 +13,7 @@ orchestration, technical documentation and AI-assisted development — from
 business demand to traceable technical artifacts that feed issues and pull
 requests.
 
-Maintained by TechMinds-Group. License **Apache-2.0** + contribution via
+Maintained by the RDD maintainers. License **Apache-2.0** + contribution via
 **DCO**.
 
 ## How it works

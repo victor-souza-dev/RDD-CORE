@@ -8,14 +8,14 @@
 
 ## Open Core: how it works
 
-Development happens in the **private** `TM.CORE.RDD` repository — that's where
-internal contributors create skills, subagents and improvements. Public
-releases are **clean snapshots** of the "essential subset" (agents, skills,
-registry, templates, evals and contribution docs) published to the **public**
-repository `victor-souza-dev/RDD-CORE`.
+Development happens in a **private** repository (the maintainers' internal
+instance) — that's where internal contributors create skills, subagents and
+improvements. Public releases are **clean snapshots** of the "essential subset"
+(agents, skills, registry, templates, evals and contribution docs) published to
+the **public** repository `victor-souza-dev/RDD-CORE`.
 
 External contributions come in via **PR to `rdd-core`** (public). Maintainers
-port the accepted contribution to `TM.CORE.RDD` (private) and publish the next
+port the accepted contribution to their private instance and publish the next
 release. Internal history (IMP, ADR, quality, reports) never appears in the
 public repository — each release is a snapshot, not a mirror of the internal
 git.
@@ -125,9 +125,9 @@ the destination for generalized, anonymized patlets.
 
 **Standing decisions (2026-10-26 proposal):**
 
-- **Single maintainer in the MVP** — merges to `rdd-core` approved by
-  TechMinds (single TC; TC federation per domain when the 2nd company
-  contributes).
+- **Single maintainer in the MVP** — merges to `rdd-core` approved by the
+  maintainer (single TC; TC federation per domain as more organizations
+  contribute).
 - **Named provenance with opt-in** — `origem` and `projetos_validacao`
   identify company and validation projects; `anonimo` is a valid option.
 - **Fixed 30-day warranty** — equal for every accepted pattern.

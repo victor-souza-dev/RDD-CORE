@@ -13,7 +13,7 @@ requisitos, documentação técnica e desenvolvimento assistido por IA — da de
 de negócio até artefatos técnicos rastreáveis que alimentam issues e pull
 requests.
 
-Mantido pela TechMinds-Group. Licença **Apache-2.0** + contribuição via **DCO**.
+Mantido pelos mantenedores do RDD. Licença **Apache-2.0** + contribuição via **DCO**.
 
 ## Como funciona
 
