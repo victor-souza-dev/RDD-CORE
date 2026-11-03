@@ -33,5 +33,5 @@ Do pack da empresa (`accumulation/patterns/`) para este hub:
 Fluxo completo e decisões vigentes: seção **"Promovendo patterns"** do
 `CONTRIBUTING.md`.
 
-> Mantenedor único no MVP: TechMinds (federação de TCs por domínio quando a
-> 2ª empresa contribuir).
+> Mantenedor único no MVP: o mantenedor do core (federação de TCs por domínio
+> quando uma 2ª organização contribuir).

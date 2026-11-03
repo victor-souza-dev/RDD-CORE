@@ -8,14 +8,14 @@
 
 ## Open Core: como funciona
 
-O desenvolvimento acontece no repositório **privado** `TM.CORE.RDD` — é lá que
-internos criam skills, subagents e melhorias. As releases públicas são
+O desenvolvimento acontece num **repositório privado** (a instância interna dos
+mantenedores) — é lá que internos criam skills, subagents e melhorias. As releases públicas são
 **snapshots limpos** do "subset essencial" (agents, skills, registry, templates,
 evals e docs de contribuição) publicados no repositório **público**
 `victor-souza-dev/RDD-CORE`.
 
 Contribuições externas entram via **PR no `rdd-core`** (público). Os
-mantenedores portam a contribuição aceita para o `TM.CORE.RDD` (privado) e
+mantenedores portam a contribuição aceita para a instância privada e
 publicam a próxima release. Histórico interno (IMP, ADR, quality, reports)
 nunca aparece no repositório público — cada release é um snapshot, não um
 mirror do git interno.
@@ -45,10 +45,20 @@ O repo público vive no GitHub — mas nada impede que sua instância privada do
 RDD rode em outra plataforma (Azure DevOps, GitLab, servidor próprio). Nesse
 caso, mantenha dois ambientes com papéis distintos:
 
-- **Instância privada (Azure DevOps/GitLab):** sua camada da organização —
-  packs, perfil de clientes, nuances de conhecimento. É onde o dia a dia roda.
-- **Fork no GitHub:** a ponte de contribuição — é o único lugar de onde uma
-  melhoria entra no open core (via PR, com CI de evals como gate).
+- **Seu CORE privado (Azure DevOps/GitLab/onde quiser):** sua instância de
+  trabalho do motor. Melhorias genéricas feitas aqui SOBEM para o CORE
+  público (fork + PR — veja "Melhoria genérica" abaixo).
+- **Seu PACK privado:** o conteúdo da sua organização — patterns, lições
+  acumuladas. Conteúdo aqui fica aqui (patterns genéricos → hub público).
+- **O CORE público (este repo):** o que todos compartilham — você absorve as
+  releases dele (`git pull`); suas melhorias genéricas de motor voltam para
+  ele.
+  Quadro completo: `README.md` → "Arquitetura open core — seus dois repos
+  privados + o motor público".
+- **Dois repos, dois papéis:** melhorias de motor (genéricas — skills, agents,
+  scripts) → fork do CORE → PR upstream. Conteúdo da organização (patterns,
+  lições acumuladas) → só no seu PACK — nunca upstream. Quadro completo:
+  `README.md` → "Arquitetura open core — dois repositórios, três camadas".
 
 ### Melhoria genérica? Contribua de volta
 
@@ -58,6 +68,14 @@ dos contribuidores externos acima (anonimização + neutrality + DCO). Se a
 melhoria nasceu dentro da sua instância privada, extraia-a para um clone do
 seu fork e aplique no subset genérico: o que é específico da sua organização
 permanece na sua camada privada; o que é genérico volta para todos.
+
+```bash
+# seu clone do dia a dia (qualquer plataforma) — adiciona o fork do GitHub
+# como segundo remote
+git remote add fork https://github.com/<voce>/RDD-CORE.git
+git push fork minha-melhoria
+# então abra a PR contra a main upstream (CI de evals é o gate do merge)
+```
 
 ### Sincronizando sua instância com as releases públicas
 
@@ -126,8 +144,8 @@ documentado no `patterns/TEMPLATE.md`; validação local com
 
 **Decisões vigentes (proposta de 2026-10-26):**
 
-- **Mantenedor único no MVP** — merges no `rdd-core` aprovados pela TechMinds
-  (TC único; federação de TCs por domínio quando a 2ª empresa contribuir).
+- **Mantenedor único no MVP** — merges no `rdd-core` aprovados pelo mantenedor
+  (TC único; federação de TCs por domínio quando uma 2ª organização contribuir).
 - **Provenance nomeada com opt-in** — `origem` e `projetos_validacao`
   identificam empresa e projetos de validação; `anonimo` é opção válida.
 - **Warranty fixa de 30 dias** — igual para todo pattern aceito.
@@ -155,7 +173,7 @@ O workflow RDD é composto por três tipos de componentes:
 ## Pré-requisitos
 
 1. **Conhecer o RDD**: ler `AGENTS.md`, `ARCHITECTURE.md` e `CHECKLISTS.md`
-2. **Ter acesso ao repositório do workflow RDD** (branch `main`)
+2. **Fork do repositório público** (`rdd-core`) — sua PR aterrissa lá
 3. **Conhecer o OpenCode**: entender front matter, tools, permissões
 4. **Ferramentas disponíveis**: `@rdd-workflow-builder` (cria componentes), `@rdd-workflow-improver` (corrige workflows)
 
@@ -169,7 +187,7 @@ Antes de criar algo novo, verifique:
 
 - **Já existe?** Consulte `ARCHITECTURE.md` §1-§3
 - **É uma correção?** Use `@rdd-workflow-improver` em vez de criar novo componente
-- **É uma melhoria?** Registre em `WORKFLOW_IMPROVEMENTS.md` primeiro
+- **É uma melhoria?** Abra uma issue primeiro descrevendo-a (o mantenedor registra o IMP internamente ao portar)
 
 ### 2. Delimitar a Função
 
@@ -213,11 +231,10 @@ Todo componente novo deve ser registrado em:
 
 ### 6. Publicar
 
-1. Registre a melhoria em `WORKFLOW_IMPROVEMENTS.md` (formato IMP-XXX) —
-   inclua o campo `**Autor:** <operador>` com o valor do campo Nome de
-   `rules/operator-profile.md` (IMP-136; perfil ausente → informe quem
-   registrou)
-2. Use `rdd-core-publish` para commit + push
+1. Push no seu fork e abra/atualize a PR — o mantenedor registra a melhoria
+   aceita internamente (IMP-XXX) ao portar para o core privado
+2. A CI de evals roda na PR (neutralidade + golden set + registry) — verde é
+   pré-condição do merge
 3. Informe outros usuários (se aplicável)
 
 ---
@@ -477,7 +494,7 @@ chore: atualizar dependências
 - [ ] Registrado em ARCHITECTURE.md
 - [ ] Registrado no registry.yaml e primary agents (se subagent)
 - [ ] Testado isoladamente
-- [ ] WORKFLOW_IMPROVEMENTS.md atualizado (se correção)
+- [ ] Issue aberta descrevendo a correção (o mantenedor registra o IMP internamente ao portar)
 - [ ] Formato de commit correto
 
 ### Quem Revisa

@@ -85,7 +85,7 @@ checks:
 
   - type: not_contains
     path: "delivery/2026-09/RN-010 — Listagem de bloqueios/RN-010 — Analise-Tecnica.md"
-    pattern: "PRJ."
+    pattern: "NOME-DO-ORGAO"
     severity: warning
 
   - type: cross_ref

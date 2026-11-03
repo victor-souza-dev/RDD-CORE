@@ -1,7 +1,7 @@
 ---
 name: "Legacy Context — schema Oracle vira contexto legado"
 description: >
-  PROJECT_CHARTER (legado: true) + legado/schema.sql (PRJ_BLOQUEIO).
+  PROJECT_CHARTER (legado: true) + legado/schema.sql (SDA_BLOQUEIO).
   LEGACY_CONTEXT deve documentar a tabela legada, a flag de situação e o
   glossário de equivalência com o módulo novo.
 inputs_required: [PROJECT_CHARTER.md]
@@ -13,7 +13,7 @@ checks:
 
   - type: contains
     path: "support/LEGACY_CONTEXT.md"
-    pattern: "PRJ_BLOQUEIO"
+    pattern: "SDA_BLOQUEIO"
     severity: error
 
   - type: contains

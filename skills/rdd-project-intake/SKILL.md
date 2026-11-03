@@ -250,7 +250,7 @@ status: draft
 ---
 ```
 
-> **Regra de idioma:** Todos os documentos são em português brasileiro (PT-BR). Títulos, descrições, perguntas e conteúdo do charter em PT-BR. Apenas identificadores técnicos (SOE, API, PRJ, SOAP) permanecem no original.
+> **Regra de idioma:** Todos os documentos são em português brasileiro (PT-BR). Títulos, descrições, perguntas e conteúdo do charter em PT-BR. Apenas identificadores técnicos (SOE, API, SDA, SOAP) permanecem no original.
 
 ```markdown
 # Termo de Abertura — [Nome do Sistema]

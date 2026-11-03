@@ -8,14 +8,14 @@
 
 ## Open Core: how it works
 
-Development happens in the **private** `TM.CORE.RDD` repository — that's where
-internal contributors create skills, subagents and improvements. Public
-releases are **clean snapshots** of the "essential subset" (agents, skills,
-registry, templates, evals and contribution docs) published to the **public**
-repository `victor-souza-dev/RDD-CORE`.
+Development happens in a **private** repository (the maintainers' internal
+instance) — that's where internal contributors create skills, subagents and
+improvements. Public releases are **clean snapshots** of the "essential subset"
+(agents, skills, registry, templates, evals and contribution docs) published to
+the **public** repository `victor-souza-dev/RDD-CORE`.
 
 External contributions come in via **PR to `rdd-core`** (public). Maintainers
-port the accepted contribution to `TM.CORE.RDD` (private) and publish the next
+port the accepted contribution to their private instance and publish the next
 release. Internal history (IMP, ADR, quality, reports) never appears in the
 public repository — each release is a snapshot, not a mirror of the internal
 git.
@@ -44,10 +44,15 @@ The public repo lives on GitHub — but nothing stops your private RDD instance
 from running on another platform (Azure DevOps, GitLab, self-hosted). Keep two
 environments with distinct roles:
 
-- **Private instance (Azure DevOps/GitLab):** your organization layer —
-  packs, client profiles, knowledge nuances. Day-to-day runs here.
-- **GitHub fork:** the contribution bridge — it's the only place an
-  improvement enters the open core (via PR, with the evals CI as gate).
+- **Your private CORE instance (Azure DevOps/GitLab/wherever):** your working
+  instance of the engine. Generic improvements made here go UP to the public
+  CORE (fork + PR — see "Generic improvement" below).
+- **Your private PACK:** your organization content — patterns, accumulated
+  lessons. Content here stays here (generic patterns → public hub).
+- **The public CORE (this repo):** what everyone shares — you absorb its
+  releases (`git pull`); your generic engine improvements flow back into it.
+  Full picture: `README.md` → "Open core architecture — your two private
+  repos + the public engine".
 
 ### Generic improvement? Contribute it back
 
@@ -58,6 +63,13 @@ improvement was born inside your private instance, extract it to a clone of
 your fork and apply it to the generic subset: what's specific to your
 organization stays in your private layer; what's generic goes back to
 everyone.
+
+```bash
+# your everyday clone (any platform) — add the GitHub fork as second remote
+git remote add fork https://github.com/<you>/RDD-CORE.git
+git push fork my-improvement
+# then open the PR against upstream main (CI of evals gates the merge)
+```
 
 ### Syncing your instance with public releases
 
@@ -125,9 +137,9 @@ the destination for generalized, anonymized patlets.
 
 **Standing decisions (2026-10-26 proposal):**
 
-- **Single maintainer in the MVP** — merges to `rdd-core` approved by
-  TechMinds (single TC; TC federation per domain when the 2nd company
-  contributes).
+- **Single maintainer in the MVP** — merges to `rdd-core` approved by the
+  maintainer (single TC; TC federation per domain as more organizations
+  contribute).
 - **Named provenance with opt-in** — `origem` and `projetos_validacao`
   identify company and validation projects; `anonimo` is a valid option.
 - **Fixed 30-day warranty** — equal for every accepted pattern.
@@ -152,7 +164,7 @@ The RDD workflow has three component types:
 ## Prerequisites
 
 1. **Know RDD**: read `AGENTS.md`, `ARCHITECTURE.md` and `CHECKLISTS.md`
-2. **Have access to the RDD workflow repository** (`main` branch)
+2. **Fork the public repo** (`rdd-core`) — your PR lands there
 3. **Know OpenCode**: front matter, tools, permissions
 4. **Available tools**: `@rdd-workflow-builder` (creates components),
    `@rdd-workflow-improver` (fixes workflows)
@@ -160,8 +172,8 @@ The RDD workflow has three component types:
 ## Contribution flow
 
 1. **Identify the need** — does it already exist? (`ARCHITECTURE.md` §1-§3).
-   Bug → `@rdd-workflow-improver`. Improvement → register in
-   `WORKFLOW_IMPROVEMENTS.md` first (IMP-XXX format).
+   Bug → `@rdd-workflow-improver`. Improvement → open an issue first
+   describing it (the maintainer registers it internally when porting).
 2. **Scope the role** — what it does, which domain, who invokes it, which
    skills it uses.
 3. **Create the component** — meta-skills: `rdd-skill-creator` (new skill),
@@ -171,8 +183,8 @@ The RDD workflow has three component types:
    `registry.yaml` (see PT-BR guide for the exact registration table).
 5. **Test** — run the component in isolation, check skill invocations and
    permissions, validate with `rdd-validate` if applicable.
-6. **Publish** — register the improvement in `WORKFLOW_IMPROVEMENTS.md`
-   (IMP-XXX with **Author**), use `rdd-core-publish` for commit + push.
+6. **Publish** — push to your fork and open/update the PR. The maintainer
+   registers the accepted improvement internally (IMP-XXX) when porting.
 
 ## Naming conventions
 

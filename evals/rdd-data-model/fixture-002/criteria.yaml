@@ -1,7 +1,7 @@
 ---
 name: "Data Model L1 — reuso de tabela legada sem renomeação"
 description: >
-  EDGE: módulo legado com PRJ_BLOQUEIO em produção. O modelo deve ADOTAR o
+  EDGE: módulo legado com SDA_BLOQUEIO em produção. O modelo deve ADOTAR o
   reuso, preservar nome/tipos/constraints legados (NUNCA renomear para
   convenção nova) e adicionar apenas a tabela nova HIST_BLOQUEIO com o
   evento EXPIRADO (RN-003).
@@ -14,12 +14,12 @@ checks:
 
   - type: contains
     path: "specs/DATA_MODEL.md"
-    pattern: "PRJ_BLOQUEIO"
+    pattern: "SDA_BLOQUEIO"
     severity: error
 
   - type: contains
     path: "specs/DATA_MODEL.md"
-    pattern: "SEQ_PRJ_BLOQUEIO"
+    pattern: "SEQ_SDA_BLOQUEIO"
     severity: error
 
   - type: contains

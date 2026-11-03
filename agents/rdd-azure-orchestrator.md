@@ -144,4 +144,4 @@ Próximos passos: <o que falta / recomendação>
   reiniciar o OpenCode — informe e agende a criação dos work items para a sessão seguinte.
 - **Tracker do projeto é GitHub:** se o delivery_style/tracker do módulo
   indicar GitHub, oriente o `@rdd-github-orchestrator` — Azure DevOps é
-  tracker dos repos PRJ.*/PRJ.*.
+  tracker dos repos declarados no perfil do cliente (IMP-103/IMP-105).

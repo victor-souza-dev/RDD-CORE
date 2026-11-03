@@ -7,7 +7,7 @@ status: draft
 
 # Modelo de Dados — Bloqueios Sanitários (reuso do legado)
 
-> **Derivado de:** LEGACY_CONTEXT.md (PRJ_BLOQUEIO), REQUIREMENTS.md (RN-001, RN-002, RN-003, RN-004)
+> **Derivado de:** LEGACY_CONTEXT.md (SDA_BLOQUEIO), REQUIREMENTS.md (RN-001, RN-002, RN-003, RN-004)
 > **Última atualização:** 21/09/2026
 
 ---
@@ -16,7 +16,7 @@ status: draft
 
 ```mermaid
 erDiagram
-    PRJ_BLOQUEIO {
+    SDA_BLOQUEIO {
         NUMBER(10) NRO_INT_BLOQUEIO PK
         NUMBER(10) NRO_INT_PRODUTOR
         VARCHAR2(400) TXT_MOTIVO
@@ -35,20 +35,20 @@ erDiagram
         DATE CTR_DTH_INC
     }
 
-    PRJ_BLOQUEIO }o--|| HIST_BLOQUEIO : "gera eventos"
+    SDA_BLOQUEIO }o--|| HIST_BLOQUEIO : "gera eventos"
 ```
 
 ---
 
 ## 2. Tabelas
 
-### 2.1 PRJ_BLOQUEIO (tabela legada reaproveitada)
+### 2.1 SDA_BLOQUEIO (tabela legada reaproveitada)
 
 Tabela **existente em produção**, reaproveitada pelo novo módulo. Todas as
 colunas legadas são preservadas; as não usadas pelo módulo estão marcadas
 com "(não usado)". Tipos e nomes originais mantidos — **sem renomeação**.
 
-**Identificação:** PK via sequence legada (nominal `SEQ_PRJ_BLOQUEIO`)
+**Identificação:** PK via sequence legada (nominal `SEQ_SDA_BLOQUEIO`)
 
 | Coluna | Tipo | Obrigatório | PK/FK | Descrição |
 |---|---|---|---|---|
@@ -71,7 +71,7 @@ com "(não usado)". Tipos e nomes originais mantidos — **sem renomeação**.
 
 | Coluna | Valor | Origem |
 |---|---|---|
-| NRO_INT_BLOQUEIO | SEQ_PRJ_BLOQUEIO | PK |
+| NRO_INT_BLOQUEIO | SEQ_SDA_BLOQUEIO | PK |
 | NRO_INT_PRODUTOR | Do request | Request |
 | TXT_MOTIVO | Do request (motivo) | Request |
 | DTH_INICIO | Data/hora da aplicação (RN-001) | Sistema |
@@ -87,7 +87,7 @@ Histórico de eventos do novo módulo (DEC-001): eventos `CRIADO`,
 | Coluna | Tipo | Obrigatório | PK/FK | Descrição |
 |---|---|---|---|---|
 | COD_HIST | NUMBER(10) | Sim | PK | ID do evento (SEQ_HIST_BLOQUEIO) |
-| NRO_INT_BLOQUEIO | NUMBER(10) | Sim | FK → PRJ_BLOQUEIO | Bloqueio referenciado |
+| NRO_INT_BLOQUEIO | NUMBER(10) | Sim | FK → SDA_BLOQUEIO | Bloqueio referenciado |
 | TIP_EVENTO | VARCHAR2(20) | Sim | — | `CRIADO`, `ENCERRADO` ou `EXPIRADO` |
 | TXT_DETALHE | VARCHAR2(500) | Não | — | Detalhe (motivo do fim, etc.) |
 | CTR_DTH_INC | DATE | Sim | — | Auditoria |
@@ -102,7 +102,7 @@ Histórico de eventos do novo módulo (DEC-001): eventos `CRIADO`,
 
 | Opção | Status | Motivo |
 |---|---|---|
-| Reutilizar `PRJ_BLOQUEIO` com filtro por FLG_SITUACAO | **Adotado** | Tabela em produção com dados históricos a preservar (LEGACY_CONTEXT.md). Convenções legadas prevalecem sobre as de tabela nova. |
+| Reutilizar `SDA_BLOQUEIO` com filtro por FLG_SITUACAO | **Adotado** | Tabela em produção com dados históricos a preservar (LEGACY_CONTEXT.md). Convenções legadas prevalecem sobre as de tabela nova. |
 | Criar `BLOQUEIO` nova | Rejeitado | Exigiria migração de dados sem ganho funcional. |
 
 Nenhuma coluna legada foi renomeada. A tabela nova `HIST_BLOQUEIO` segue a
