@@ -42,7 +42,7 @@ if [[ -f "$WORDLIST_FILE" ]]; then
   WORDLIST="$(cat "$WORDLIST_FILE")"
 else
   # default generico publicado — tokens reais vivem em wordlist.local (nao versionado)
-  WORDLIST='org-a|client-b|produto-a|proj-a'
+  WORDLIST='zz-placeholder-org|zz-placeholder-cliente|zz-placeholder-produto'
 fi
 
 LIST="$(mktemp)"
