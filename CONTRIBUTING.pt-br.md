@@ -8,14 +8,14 @@
 
 ## Open Core: como funciona
 
-O desenvolvimento acontece no repositório **privado** `TM.CORE.RDD` — é lá que
-internos criam skills, subagents e melhorias. As releases públicas são
+O desenvolvimento acontece num **repositório privado** (a instância interna dos
+mantenedores) — é lá que internos criam skills, subagents e melhorias. As releases públicas são
 **snapshots limpos** do "subset essencial" (agents, skills, registry, templates,
 evals e docs de contribuição) publicados no repositório **público**
 `victor-souza-dev/RDD-CORE`.
 
 Contribuições externas entram via **PR no `rdd-core`** (público). Os
-mantenedores portam a contribuição aceita para o `TM.CORE.RDD` (privado) e
+mantenedores portam a contribuição aceita para a instância privada e
 publicam a próxima release. Histórico interno (IMP, ADR, quality, reports)
 nunca aparece no repositório público — cada release é um snapshot, não um
 mirror do git interno.
@@ -126,8 +126,8 @@ documentado no `patterns/TEMPLATE.md`; validação local com
 
 **Decisões vigentes (proposta de 2026-10-26):**
 
-- **Mantenedor único no MVP** — merges no `rdd-core` aprovados pela TechMinds
-  (TC único; federação de TCs por domínio quando a 2ª empresa contribuir).
+- **Mantenedor único no MVP** — merges no `rdd-core` aprovados pelo mantenedor
+  (TC único; federação de TCs por domínio quando uma 2ª organização contribuir).
 - **Provenance nomeada com opt-in** — `origem` e `projetos_validacao`
   identificam empresa e projetos de validação; `anonimo` é opção válida.
 - **Warranty fixa de 30 dias** — igual para todo pattern aceito.

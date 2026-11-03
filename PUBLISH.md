@@ -1,13 +1,13 @@
 # PUBLISH — Processo de Release Pública do Open Core
 
-Como publicar um snapshot do `TM.CORE.RDD` (privado) no repositório público
+Como publicar um snapshot do core privado no repositório público
 `victor-souza-dev/RDD-CORE`. O modelo é **snapshot**: o repo público nunca
 recebe o histórico interno — cada release substitui o conteúdo público pelo
 subset essencial limpo da HEAD atual do core.
 
 ---
 
-## Pré-condições (no TM.CORE.RDD, antes de publicar)
+## Pré-condições (no core privado, antes de publicar)
 
 1. **Evals verdes** na HEAD a publicar:
    - `--all` → **810/810**
