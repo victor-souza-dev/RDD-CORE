@@ -1,3 +1,6 @@
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](CONTRIBUTING.en.md)
+[![Português](https://img.shields.io/badge/lang-Portugu%C3%AAs-brightgreen.svg)](CONTRIBUTING.md)
+
 # CONTRIBUTING — Open Core do Workflow RDD
 
 ## Open Core: como funciona
