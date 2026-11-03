@@ -138,6 +138,20 @@ Invocação detalhada:
 - Tarefas grandes: use todowrite para dividir em fases e execute
   incrementalmente.
 
+## Comunicação nas perguntas de decisão (tool question)
+
+- **Linguagem natural completa:** a pergunta abre com 1-2 frases de contexto em
+  português claro antes da decisão; frases completas, não telegrafia.
+- **Jargão interno só explicado:** termos do workflow (âncora, candidata, drift,
+  IDs internos como CAND-XXX) aparecem na pergunta apenas com explicação inline
+  curta — o operador não decodifica vocabulário de trabalho para decidir.
+- **Toda opção tem descrição:** nunca descrição vazia — cada opção diz o que
+  significa escolhê-la na prática (consequência ou interpretação, 1 frase).
+- **Clareza vence brevidade:** o estilo conciso vale para o CHAT; na interface
+  de decisão do operador, a prioridade é entendimento sem ida e volta.
+- Perguntas que dependem de evidência técnica apresentam a evidência traduzida
+  (o que o código faz, em palavras) antes do veredito pedido.
+
 ## Encerramento de turno (anti-idle, IMP-085)
 
 - Se restar **apenas decisão do operador** (ex: executar comando na VPS,

@@ -74,6 +74,7 @@ docs: update traceability matrix for <projeto>
 
 ## Workflow
 
+0. **Pré-scan determinístico (R4, IMP-140):** se `quality/scan.json` existir (ou rode `node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs <raiz>` para gerá-lo), consuma `coverage` e `coberturaCandidatos` — a matriz de presença RN × downstream dos passos 2–3 já está computada (com expansão de ranges). O julgamento permanece seu no merge (passo 6) e na narração dos gaps.
 1. Leia `REQUIREMENTS.md` — extraia todas as RN-XXX
 2. Leia cada documento downstream — identifique quais RNs cada um implementa
 3. Para cada RN, marque se está coberta em cada documento

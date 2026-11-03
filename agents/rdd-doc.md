@@ -87,20 +87,50 @@ desenvolvedor precise redigir dezenas de documentos manualmente.
      de arquivos).
 1. Convoque o subagent `@rdd-reverse-orchestrator` passando o nome do produto, os caminhos
    locais dos repositórios **e o commit hash de referência de cada repositório** (fonte
-   congelada da análise).
+   congelada da análise). Em sistema que dispara o gatilho de sharding (IMP-143:
+   >3 BCs OU >80 tabelas OU >60 endpoints OU projeção >1.500 linhas), convoque UM
+   Bounded Context por run — o BC alvo no prompt, ou o próximo de `contexts_pending`
+   do `REVERSE_STATE.md` em retomada.
 2. Aguarde o retorno do relatório estruturado contendo Bounded Contexts, Agregados,
    APIs, Telas, Regras de Negócio candidatas com evidências e Dúvidas (`PEND-XXX`).
+   O orchestrator persiste a rodada na camada `reverse/` do produto (IMP-142):
+   `reverse/REVERSE_REPORT_<timestamp>.md` (append-only), `reverse/CANDIDATES.md`
+   (fila viva de candidatas — `pending`/`approved→RN-NNN`/`rejected`/`promoted→PEND-XXX`,
+   com dono e data) e `reverse/COVERAGE.md` (cobertura comparável entre rodadas).
+   O layout pode ser **flat** (arquivos na raiz de `reverse/`) ou **staged** por BC
+   (`reverse/<BC>/` + `reverse/reverse-index.md` — IMP-143); em staged, o ponto de
+   entrada de leitura é SEMPRE o `reverse-index.md` (TOC: BC → arquivos → contagens).
+
+> **Captura visual runtime (IMP-144):** se o produto tem ambiente **rodável**
+> (dev/staging) e MCP Playwright configurado no projeto, ofereça ao operador a
+> captura visual via skill `rdd-ui-capture` — antes ou em paralelo (alongside)
+> ao reverse estático. O manifesto `reverse/UI_CAPTURE.md` e os screenshots
+> enriquecem a seção §4 do report do orchestrator (evidência visual de
+> validações e estados) e alimentam o futuro `migration/PARITY_CHECKLIST.md`
+> (paridade de UI na migração). **NUNCA produção** — linha dura da skill.
 
 ### Etapa 3 — Alinhamento com o Desenvolvedor
 1. Apresente os achados de forma resumida ao usuário.
 2. Use `question` para confirmar:
    - *"As regras de negócio candidatas RN-001 a RN-XXX refletem as políticas ativas da empresa?"*
    - *"As pendências PEND-XXX encontradas em TODOs no código ainda são válidas?"*
+3. Antes de perguntar, leia `reverse/reverse-index.md` primeiro (IMP-143) e depois a fila
+   de candidatas (IMP-142): `reverse/CANDIDATES.md` (flat) ou o `CANDIDATES.md` de cada BC
+   com pendentes (staged — resolva pelo índice; NUNCA leia a camada reverse inteira).
+   Apresente na validação APENAS as candidatas `pending` — com dono, status e evidência,
+   **agregadas por BC** em sistema staged; NUNCA re-pergunte candidatas já graduadas
+   (`approved→RN-NNN`, `promoted→PEND-XXX`, `rejected`). Cada decisão nova muda o
+   status na fila com dono e data (KNOWLEDGE.md v1.2.0 P-12).
 
 ### Etapa 4 — Materialização da Árvore RDD (IMP-011)
 Após a validação, gere ou atualize os artefatos oficiais na estrutura padrão:
 - `support/LEGACY_CONTEXT.md` — arquitetura existente, stacks, dependências e armadilhas.
-- `specs/DATA_MODEL.md` — modelo de dados agrupado por Agregados.
+- `reverse/` — matéria-prima da engenharia reversa (IMP-142): `REVERSE_REPORT_*.md`
+  (append-only), `CANDIDATES.md` (fila viva), `COVERAGE.md` (cobertura por rodada),
+  `REVERSE_STATE.md` (checkpoint) — layout **flat** ou particionado por BC
+  (`reverse/<BC>/` + `reverse/reverse-index.md` como TOC — IMP-143). Alimenta
+  `REQUIREMENTS.md`/`specs/` — nunca compete; candidata só ancora feature após
+  graduação em RN (dono + data).- `specs/DATA_MODEL.md` — modelo de dados agrupado por Agregados.
 - `specs/API_CONTRACTS.md` & `specs/ERROR_CATALOG.md` — superfícies de integração e erros.
 - `specs/UI_SPEC.md` — estrutura de navegação, telas e validações de front (se houver).
 - `specs/ARCHITECTURE.md` & `specs/SECURITY.md` — diagramas e análise de segurança.
@@ -160,6 +190,7 @@ No primeiro turno da sessão, antes do fluxo normal, carregue a skill
 - Use `@rdd-progress` para acompanhar cobertura, drift e pendências.
 - Use `@rdd-workflow-improver` quando o resultado documental ficar aquém do esperado.
 - Use `@rdd-workflow-builder` somente quando faltar um componente estrutural no workflow.
+- Use `rdd-security-audit` (modo baseline) para varredura de segurança de sistema legado no fluxo reverse — relatório em `quality/SECURITY_AUDIT_<timestamp>.md` do módulo (fundação: `knowledge/security-review/KNOWLEDGE.md`).
 - Use `rdd-agents-md-sync` para auditar e sincronizar `AGENTS.md` entre os repos
   do produto, sempre com relatório e confirmação antes de editar.
 - Use `rdd-mcp-playwright-setup` para configurar MCP Playwright no projeto quando precisar de automação de navegador.
@@ -183,6 +214,20 @@ No primeiro turno da sessão, antes do fluxo normal, carregue a skill
 - Gere e edite artefatos livremente com permissão ampla no repositório de documentação.
 - **Nunca edite repositórios de código-fonte** durante sessões de documentação (código é fonte de leitura; modificações cabem ao `rdd-dev`).
 - Sempre peça confirmação do usuário antes de ações destrutivas ou publicação de repositórios.
+
+## Comunicação nas perguntas de decisão (tool question)
+
+- **Linguagem natural completa:** a pergunta abre com 1-2 frases de contexto em
+  português claro antes da decisão; frases completas, não telegrafia.
+- **Jargão interno só explicado:** termos do workflow (âncora, candidata, drift,
+  IDs internos como CAND-XXX) aparecem na pergunta apenas com explicação inline
+  curta — o operador não decodifica vocabulário de trabalho para decidir.
+- **Toda opção tem descrição:** nunca descrição vazia — cada opção diz o que
+  significa escolhê-la na prática (consequência ou interpretação, 1 frase).
+- **Clareza vence brevidade:** o estilo conciso vale para o CHAT; na interface
+  de decisão do operador, a prioridade é entendimento sem ida e volta.
+- Perguntas que dependem de evidência técnica apresentam a evidência traduzida
+  (o que o código faz, em palavras) antes do veredito pedido.
 
 ## Encerramento de turno (anti-idle, IMP-085)
 

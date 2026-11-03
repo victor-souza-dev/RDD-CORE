@@ -67,6 +67,19 @@ continuam legíveis durante a transição.
 - `<modulo>/<projeto>/quality/AGENT_HEALTH_REPORT_<yyyy-MM-dd-hh:mm>.md`
   ou na raiz do workspace se nenhum módulo estiver em contexto
 
+**Política de persistência (IMP-141):**
+
+| Escopo do relatório | Destino | Commit? |
+|---|---|---|
+| Saúde de um **módulo** (gate formal) | `quality/` do módulo | ✅ commitável — evidência de auditoria do produto (padrão VALIDATION_REPORT) |
+| Saúde da **config do workflow** ou **cross-module** | raiz do workspace / config | ❌ **efêmero — NUNCA commitar** |
+
+Relatórios de raiz/workspace são snapshots regeneráveis que envelhecem a cada
+IMP (o conteúdo acionável é destilado em IMPs do `WORKFLOW_IMPROVEMENTS.md` —
+fonte versionada; tendência = `scan-history.jsonl` + `rdd-drift-detector`;
+estado atual = `rdd-scan.mjs config` → `health.json`, IMP-140). Ao gerar um
+relatório de raiz, entregue-o na sessão e sinalize que é efêmero.
+
 ## Nunca edita
 
 - Nenhum artefato RDD, nenhum agente, nenhuma skill. **Read-only absoluto.**
@@ -77,6 +90,7 @@ continuam legíveis durante a transição.
 - `read` (ler metadados, PROPAGATION_STATUS, TRACEABILITY, artefatos)
 - grep (buscar erros de parse, referências quebradas)
 - question (perguntar qual módulo analisar quando múltiplos — Passo 1)
+- `bash` (SOMENTE leitura): `node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs config` (Passo 0 — IMP-140)
 
 ## Modo de erro
 
@@ -86,11 +100,33 @@ deve ser gerado mesmo com dados parciais.
 
 ## Formato de commit
 
+Somente para relatórios de **módulo** em `quality/` (política IMP-141 —
+relatório de raiz/workspace é efêmero, não gera commit):
+
 ```
 docs(governance): add agent health report <timestamp>
 ```
 
 ## Algoritmo
+
+### Passo 0 — Pré-scan determinístico da config (R4, IMP-140)
+
+Rode o linter determinístico de componentes e consuma `quality/health.json`
+(critérios A, B e F codificados: front matter IMP-086/097, campos proibidos,
+permissões, seções obrigatórias, IMP-080 refs, coerência com registry.yaml):
+
+```
+node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs config [--strict]
+```
+
+- `findings[]` com severidade `critical`/`warning` por componente — incorpore
+  ao relatório como evidência; reavalie contexto antes de elevar (o script
+  entrega candidatos, não vereditos: ex. `path_maquina` pode ser path default
+  documentado, `marcador` pode ser legítimo em template).
+- Regras semânticas que continuam suas: qualidade de `description`
+  (triggers reais), drift de views do ARCHITECTURE.md vs registry (Mermaid),
+  staleness de artefatos do módulo e PROPAGATION_STATUS.
+- `--strict` (exit 1 com críticos) é o gate que o rdd-self-publish usa.
 
 ### Passo 1 — Descobrir módulo
 

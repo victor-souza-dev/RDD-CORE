@@ -100,7 +100,7 @@ No primeiro turno da sessão, antes do fluxo normal, carregue a skill
 | `@rdd-dev-backend` | Feature backend (endpoint, service) a partir de API_CONTRACTS.md |
 | `@rdd-dev-frontend` | Feature frontend (tela, componente) a partir de UI_SPEC.md |
 | `@rdd-dev-qa` | QA independente da task — roda as suítes pelo playbook da stack (IMP-077), mede cobertura e verifica contra TEST_STRATEGY/DEFINITION_OF_DONE; veredito APROVADA/REPROVADA; nunca edita código nem teste |
-| `@rdd-dev-reviewer` | Revisão formal pré-PR — RNs × diff, quality gates (rdd-quality-gates), itens de specs/SECURITY.md e docs vivas; veredito approve/request-changes |
+| `@rdd-dev-reviewer` | Revisão formal pré-PR — RNs × diff, quality gates (rdd-quality-gates), security audit (rdd-security-audit — base security-review; SECURITY.md como piso adicional) e docs vivas; veredito approve/request-changes |
 | `@rdd-next` | Início de sessão — recomenda a próxima ação do módulo |
 | `@rdd-progress` | Status e acompanhamento de cobertura, drift e pendências |
 | `@rdd-cr-propagation-guard` | Após implementar código que reflete um CR aprovado — verificar artefatos stale |
@@ -137,7 +137,7 @@ Invocação detalhada:
 - `@rdd-next` deve ser consultado no início de uma sessão quando houver um
   módulo RDD associado.
 - `@rdd-progress` deve ser usado para status, cobertura ou acompanhamento
-- **Fluxo de fechamento de task (qualidade do domínio Dev):** o roteamento é do `@rdd-dev-orchestrator` (IMP-101) — consulte-o para classificar a fase e o próximo passo do ciclo: executor (`@rdd-dev-backend`/`@rdd-dev-frontend`, com docs vivas no Passo 9) → QA independente (`@rdd-dev-qa` — suítes + cobertura vs TEST_STRATEGY/DEFINITION_OF_DONE) → revisão formal (`@rdd-dev-reviewer` — RNs × diff, quality gates, SECURITY, docs vivas) → só então PR via `@rdd-github-orchestrator` — o `rdd-gh-pr-creator` SÓ abre PR de task aprovada pelo reviewer (registra `reviewed: true` no corpo). A delegação aos subagents executores/QA/revisor permanece com você (primary).
+- **Fluxo de fechamento de task (qualidade do domínio Dev):** o roteamento é do `@rdd-dev-orchestrator` (IMP-101) — consulte-o para classificar a fase e o próximo passo do ciclo: executor (`@rdd-dev-backend`/`@rdd-dev-frontend`, com docs vivas no Passo 9) → QA independente (`@rdd-dev-qa` — suítes + cobertura vs TEST_STRATEGY/DEFINITION_OF_DONE) → revisão formal (`@rdd-dev-reviewer` — RNs × diff, quality gates, security audit, docs vivas) → só então PR via `@rdd-github-orchestrator` — o `rdd-gh-pr-creator` SÓ abre PR de task aprovada pelo reviewer (registra `reviewed: true` no corpo). A delegação aos subagents executores/QA/revisor permanece com você (primary).
   de evolução, não para implementar código.
 - `@rdd-workflow-improver` é transversal: invoque-o quando o problema for
   do workflow, não apenas do código produzido.
@@ -246,6 +246,20 @@ gargalo — worktrees Git isolam o código por task. Fluxo:
   retomar em sessão nova (R2).
 - Tarefas grandes: use todowrite para dividir em passos e execute
   incrementalmente (task → delegar → verificar → próxima).
+
+## Comunicação nas perguntas de decisão (tool question)
+
+- **Linguagem natural completa:** a pergunta abre com 1-2 frases de contexto em
+  português claro antes da decisão; frases completas, não telegrafia.
+- **Jargão interno só explicado:** termos do workflow (âncora, candidata, drift,
+  IDs internos como CAND-XXX) aparecem na pergunta apenas com explicação inline
+  curta — o operador não decodifica vocabulário de trabalho para decidir.
+- **Toda opção tem descrição:** nunca descrição vazia — cada opção diz o que
+  significa escolhê-la na prática (consequência ou interpretação, 1 frase).
+- **Clareza vence brevidade:** o estilo conciso vale para o CHAT; na interface
+  de decisão do operador, a prioridade é entendimento sem ida e volta.
+- Perguntas que dependem de evidência técnica apresentam a evidência traduzida
+  (o que o código faz, em palavras) antes do veredito pedido.
 
 ## Encerramento de turno (anti-idle, IMP-085)
 
