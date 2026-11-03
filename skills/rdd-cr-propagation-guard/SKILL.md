@@ -81,6 +81,23 @@ docs: guard - update PROPAGATION_STATUS.md for <module>
 
 ## Algoritmo de Detecção
 
+### Passo 0 — Evidência determinística (R4, IMP-140)
+
+Gere o diff de conjuntos CR × PROPAGATION_STATUS × cobertura e consuma o
+`quality/propagation-evidence.json` como insumo (gera `scan.json` se ausente):
+
+```
+node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs prop <raiz-do-módulo>
+```
+
+- `evidencia[]` (CRs approved/implemented, `resolvidoEntries`,
+  `noPendentes`, `rnsSemDownstream`) e `semRegistroNoPropagationStatus` são
+  os candidatos prontos dos Passos 3–4 e do merge do Passo 8.
+- O julgamento de staleness por artefato (Passo 5 — "a mudança foi
+  refletida no texto?") permanece agêntico: presença de ID ≠ reflexo.
+- `candidatosStale` intersecta `coberturaCandidatos` do `scan.json` —
+  use como fila prioritária do Passo 5.
+
 ### Passo 1 — Descobrir módulo
 
 Se o caminho do módulo não for fornecido, use `glob` para encontrar

@@ -4,8 +4,10 @@ description: >-
   Revisão formal pré-PR do diff da task no domínio Dev — verifica (1) RNs
   cobertas: cada RN da task tem mudança correspondente no diff; (2) quality
   gates aplicáveis (complexidade/duplicação/smells) via skill
-  rdd-quality-gates; (3) itens aplicáveis de specs/SECURITY.md do módulo
-  (autenticação, validação de entrada, secrets, dados sensíveis); (4) docs
+  rdd-quality-gates; (3) security audit do dif via skill
+  rdd-security-audit — princípios P-01..P-10 da base
+  knowledge/security-review/KNOWLEDGE.md, com specs/SECURITY.md do módulo
+  como piso adicional quando existir; (4) docs
   vivas checadas; (5) eixo compliance: itens aplicáveis de
   specs/COMPLIANCE.md (IMP-102) quando a task toca dado pessoal — só se o
   módulo tiver o artefato e compliance: true no charter. Veredito approve / request-changes com lista acionável.
@@ -75,7 +77,9 @@ para o `rdd-gh-pr-creator` abrir PR.
   RNs em escopo (glob recursivo — IMP-093) e status do front matter
 - `<modulo>/<projeto>/REQUIREMENTS.md` — texto das RNs afetadas (§6)
 - `<modulo>/<projeto>/specs/SECURITY.md` — requisitos de segurança do
-  módulo (quando existir)
+  módulo (quando existir; piso adicional aos princípios da base)
+- `~/.config/opencode/knowledge/security-review/KNOWLEDGE.md` — fonte
+  canônica dos critérios do eixo 3 (consumida via `rdd-security-audit`)
 - `<modulo>/<projeto>/specs/COMPLIANCE.md` — checklist LGPD do módulo
   (IMP-102; quando existir E o charter tiver `compliance: true`)
 - `<modulo>/<projeto>/specs/API_CONTRACTS.md` / `UI_SPEC.md` — contrato
@@ -104,11 +108,12 @@ para o `rdd-gh-pr-creator` abrir PR.
 | Skill | Quando usar |
 |-------|-------------|
 | `rdd-quality-gates` | Eixo 2 — rodar/executar os checks aplicáveis (checklist A+B; métricas best-effort conforme playbook da stack — IMP-077/IMP-082) |
+| `rdd-security-audit` | Eixo 3 — security audit do dif contra os princípios P-01..P-10 da base security-review (SECURITY.md como piso adicional quando existir) |
 
 ## Tools disponíveis
 
 - `read`/`glob`/`grep` — diff, specs, REQUIREMENTS, SECURITY, relatórios
-- `skill` — carregar `rdd-quality-gates`
+- `skill` — carregar `rdd-quality-gates` e `rdd-security-audit`
 - `bash` — comandos read-only de inspeção (`git diff/show/log`, `rg`,
   cmdlets) sem pedágio; `git commit`/`git push` negados
 - `question` — esclarecer escopo ou RN ambígua com o `rdd-dev`
@@ -116,8 +121,12 @@ para o `rdd-gh-pr-creator` abrir PR.
 ## Modo de erro
 
 `interativo` — diff vazio ou branch/worktree inválido → pergunte ao
-`rdd-dev`. SECURITY.md ausente → eixo 3 fica `N/A (SECURITY.md não
-encontrado)` e a lacuna vai para pendências, sem reprovar por isso.
+`rdd-dev`. SECURITY.md ausente → o eixo 3 NÃO fica N/A: roda sobre os
+princípios P-01..P-10 da base security-review via `rdd-security-audit`
+(fallback canônico). Eixo 3 fica `N/A` apenas se a base estiver
+indisponível ou stale (`proxima_revisao` vencida) — registre a lacuna
+como pendência para o `rdd-workflow-builder` (re-pesquisa via
+`rdd-domain-research`).
 
 ## Workflow
 
@@ -129,8 +138,17 @@ task (`RN-NNN-M`) e RNs em escopo. Confirme a branch ativa com
 
 ### Passo 2 — Eixo 1: RNs × diff
 
+Pré-scan determinístico do diff (R4, IMP-140) — diff de conjuntos antes do
+julgamento (síntese do JSON no **stderr**; `--strict` exit 1 se RN da task
+ausente do diff):
+
+```
+node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs diff <repo> --base <branch-base> --rns RN-001,RN-002 [--out review-evidence.json]
+```
+
 Para cada RN da task, localize a mudança correspondente no diff
-(arquivo/hunk que implementa o comportamento). Monte a matriz:
+(arquivo/hunk que implementa o comportamento) — presença do ID no diff
+(`rnsNoDiff`) é evidência, não veredito. Monte a matriz:
 RN-XXX → arquivo(s) no diff. **RN sem correspondência → request-changes**
 com a lista das RNs descobertas.
 
@@ -142,12 +160,16 @@ teste; métricas best-effort — só comandos do playbook, IMP-077/082).
 Reprovação apenas em check de severidade error; warnings são
 informativos.
 
-### Passo 4 — Eixo 3: SECURITY.md
+### Passo 4 — Eixo 3: security audit
 
-Leia `specs/SECURITY.md` e verifique os itens aplicáveis ao diff:
-autenticação/autorização nos endpoints novos, validação de entrada,
-ausência de secrets/hardcode, tratamento de dados sensíveis (log/PII).
-Item aplicável violado → request-changes com referência à seção.
+Carregue `rdd-security-audit` (modo dif) e tria o diff contra os
+princípios P-01..P-10 da base `knowledge/security-review/KNOWLEDGE.md`.
+`specs/SECURITY.md`, quando existir, é piso adicional — requisitos
+específicos do módulo além dos princípios da base; conflito entre
+SECURITY.md e a base não é decidido aqui: pendência para o `rdd-doc`.
+Triagem dos findings: Crítico/Alto → request-changes com arquivo:linha,
+princípio (P-XX/AP-XX) e correção sugerida; Médio/Baixo → pendência
+registrada (não reprova).
 
 ### Passo 5 — Eixo 4: docs vivas
 
@@ -187,7 +209,7 @@ repo: <nome> — diff: <branch-base>...<branch-feature> (<N arquivos>)
 veredito: approve | request-changes
 eixo 1 (RNs × diff): RN-XXX → <arquivo>; RN-YYY → <arquivo> | RN sem match: <lista>
 eixo 2 (quality gates): <PASS | WARN (N) | FAIL (checks)>
-eixo 3 (SECURITY.md): <ok | N/A (motivo) | violações>
+eixo 3 (security audit): <ok | N/A (motivo) | findings C<N>/A<N> + pendências M<N>/B<N>>
 eixo 4 (docs vivas): <atualizadas (lista) | lacunas | intocadas e N/A>
 eixo 5 (COMPLIANCE.md): <ok | N/A (motivo) | violações>
 achados: <arquivo:linha — problema — correção (1 por linha; se approve: nenhum)>
@@ -208,3 +230,6 @@ pendências: <lista ou "nenhuma">
   e no código-base; sem evidência no diff, mantém request-changes.
 - **Conflito entre SECURITY.md e API_CONTRACTS.md:** não decida —
   sinalize o conflito ao `rdd-dev` (roteamento para `rdd-doc`).
+- **Base security-review stale/ausente (eixo 3):** sem fundação válida
+  não há critério canônico — eixo `N/A (base indisponível)` com pendência
+  de re-pesquisa via `rdd-domain-research`; não improvise checklist.

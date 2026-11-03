@@ -1,0 +1,60 @@
+name: "Security Audit baseline - segredo hardcoded, crypto fraca, PII em log"
+description: >
+  Mini-repo legado com connection string e senha literal no appsettings
+  (AP-03/P-05, Critico), MD5 para hash de senha e token de reset com
+  Random (AP-04/P-07, Critico) e senha logada em auditoria (AP-07/P-08,
+  Alto). Relatorio baseline gravado como SECURITY_AUDIT.md na raiz do
+  sandbox. A skill NAO emite veredito.
+inputs_required: [README.md]
+
+checks:
+  - type: file_exists
+    path: "SECURITY_AUDIT.md"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "AP-03"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "P-05"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "AP-04"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "P-07"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "AP-07"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "P-08"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "## Findings"
+    severity: error
+
+  # invariante: a skill nunca emite veredito
+  - type: not_contains
+    path: "SECURITY_AUDIT.md"
+    pattern: "veredito:"
+    severity: error
+
+  - type: line_count_range
+    path: "SECURITY_AUDIT.md"
+    min: 8
+    max: 120
+    severity: warning

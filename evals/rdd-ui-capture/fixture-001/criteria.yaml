@@ -1,0 +1,32 @@
+---
+name: "UI Capture — manifesto e candidatas com evidência visual"
+description: >
+  Captura de UI de sistema legado, avaliada em baseline-mode (checks contra
+  output-expected/, sem execução de browser). Valida a estrutura do manifesto
+  reverse/UI_CAPTURE.md (proveniência, colunas do contrato IMP-144, guarda PII)
+  e as candidatas visuais em reverse/CANDIDATES.md com evidência de screenshot.
+inputs_required: ["ROTAS.md"]
+
+checks:
+  - type: file_exists
+    path: "reverse/UI_CAPTURE.md"
+    severity: error
+
+  - type: table_has_columns
+    path: "reverse/UI_CAPTURE.md"
+    columns: ["Rota", "Estado", "Arquivo PNG", "Requisições observadas", "Console", "⚠️ PII", "Candidatas geradas"]
+    severity: error
+
+  - type: contains
+    path: "reverse/UI_CAPTURE.md"
+    pattern: "Usuário de teste"
+    severity: error
+
+  - type: file_exists
+    path: "reverse/CANDIDATES.md"
+    severity: error
+
+  - type: contains
+    path: "reverse/CANDIDATES.md"
+    pattern: "screenshot: reverse/ui/"
+    severity: error

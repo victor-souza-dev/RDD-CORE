@@ -9,14 +9,16 @@ description: >
   de produto única (Salon/); (4) split-delivery — divide o delivery legado
   IMP-040 (pasta com Analise-Funcional + Analise-Tecnica) no formato IMP-092
   (analysis/RN-NNN — <título>/ + delivery/<grupo>/RN-NNN — <título> —
-  Feature.md — IMP-093). Move arquivos, atualiza referências cruzadas entre documentos,
+  Feature.md — IMP-093); (5) reverse-layer — migra a camada de engenharia reversa para
+  <produto>/reverse/ (reports append-only + fila viva de candidatas + cobertura — IMP-142).
+  Move arquivos, atualiza referências cruzadas entre documentos,
   suporta migração em lote de múltiplos módulos e gera relatório de migração.
   IMP-094: features com âncora PEND (pré-IMP-094) são migradas mantendo a
   âncora legada e sinalizadas no relatório — nunca promovidas sozinhas.
   Use quando o usuário pedir "reestruturar projeto", "migrar para
   IMP-011", "mover artefatos para subpastas", "migrar de docs/projects",
-  "unificar API e FE", "merge de pastas por camada", "split delivery" ou
-  "migrar para IMP-092".
+  "unificar API e FE", "merge de pastas por camada", "split delivery",
+  "migrar para IMP-092" ou "migrar para a camada reverse".
 ---
 # rdd-restructure — Reestruturação de Projeto SDD/RDD
 
@@ -27,6 +29,9 @@ Reorganiza a estrutura de diretórios dos módulos RDD. Três modos:
 3. **Modo merge** — `< modulo>/<camada>/` + `<modulo>/<camada2>/` → `<modulo>/<produto>/`
 4. **Modo split-delivery** — delivery legado IMP-040 (pasta com 2 arquivos) →
    `analysis/RN-NNN — <título>/` + `delivery/<grupo>/RN-NNN — <título> — Feature.md` (IMP-092/IMP-093)
+5. **Modo reverse-layer** — camada de engenharia reversa legada (`support/REVERSE_REPORT*.md`;
+   fallback do caminho do pack pre-IMP-142) → `<produto>/reverse/` com fila viva de candidatas
+   e cobertura comparável (IMP-142)
 
 ## Referências
 
@@ -386,6 +391,73 @@ Para cada pasta legado `delivery/<grupo>/RN-NNN — <título>/`:
    migração NUNCA promove sozinha.
 4. Commit: `docs: split-delivery <projeto> to IMP-092 layout`
 
+## Modo Reverse-Layer — Camada reverse/ do produto (IMP-142)
+
+> **⚠️ REGRA (IMP-142):** a camada `reverse/` é a representação intermediária de fatos da
+> engenharia reversa (KNOWLEDGE.md v1.2.0 P-10): reports append-only + fila viva de candidatas
+> (P-12) + cobertura comparável (P-11). Ela alimenta `REQUIREMENTS.md`/`specs/` — nunca compete.
+> `migration/` NÃO é criado por este modo (condicional a projeto de migração total).
+>
+> **Nota de compatibilidade (IMP-143):** o layout **flat** de `reverse/` continua válido e
+> NÃO é migrado retroativamente para o layout particionado (`reverse/<BC>/` +
+> `reverse-index.md`). O sharding por Bounded Context nasce apenas no PRÓXIMO reverse do
+> produto que disparar o gatilho de gigantismo (>3 BCs OU >80 tabelas OU >60 endpoints OU
+> projeção de report >1.500 linhas — avaliado pelo @rdd-reverse-orchestrator na Fatia 1).
+> Este modo nunca sharda layouts flat existentes; se o gatilho estiver documentado,
+> apenas sinalize a recomendação no MIGRATION_REPORT.
+
+### Quando usar
+
+- Usuário pede "migrar para a camada reverse", "criar reverse/", "migração retroativa reverse"
+- Detector: `glob <produto>/support/REVERSE_REPORT*.md` OU reports de RE no caminho legado do
+  pack (pré-IMP-142), sem `<produto>/reverse/` correspondente
+
+### Workflow do modo reverse-layer
+
+#### Passo V1 — Detectar e preparar
+
+1. Para cada produto do lote, liste os reports legados (`support/REVERSE_REPORT*.md`; fallback:
+   reports de RE gravados no caminho legado do pack pré-IMP-142) e o estado atual de `<produto>/reverse/`
+2. Produto sem reports e sem `reverse/` → N/A (idempotente)
+3. `migration/` não é criado — só existirá por decisão de projeto de migração total
+
+#### Passo V2 — Mover reports (append-only preservado)
+
+1. Crie `<produto>/reverse/` e mova cada report com o conteúdo SEM ALTERAÇÃO (append-only —
+   só o caminho muda; a nota de proveniência fica no MIGRATION_REPORT)
+2. Se `REVERSE_STATE.md` legado existir, mova-o e atualize `report_path` para o novo caminho
+
+#### Passo V3 — Gerar CANDIDATES.md retroativo (P-12)
+
+1. Varra os reports (seções "Regras de Negócio Induzidas" e "Drift Cross-Repo") e liste cada
+   candidata com sua evidência `[arquivo:linha @hash]`
+2. Status inicial por cruzamento com REQUIREMENTS.md (grep de proveniência/evidência):
+   candidata que já originou RN-NNN → `approved→RN-NNN`; que virou PEND-XXX →
+   `promoted→PEND-XXX`; explicitamente descartada pelo operador → `rejected`; demais → `pending`
+3. **Dono e data (P-12):** dono = operador que validou (operator-profile) quando apurável,
+   senão `não-apurado`; data = da graduação quando apurável, senão da migração
+4. NUNCA promova/rejeite candidata por conta própria — só registra o estado apurado
+
+#### Passo V4 — Gerar COVERAGE.md retroativo (P-11)
+
+1. Recompute as contagens de CADA report (baselines de completude das seções de modelo,
+   endpoints e telas) — cada report vira UMA observação datada com definição da contagem,
+   resultado, data do report e hash de referência citado (ou `@hash-não-fornecido`)
+2. Declare no relatório de migração as contagens apuradas (fonte: reports, não estimativa)
+
+#### Passo V5 — Atualizar referências cruzadas
+
+Em todos os .md do produto, reescreva links/paths de `support/REVERSE_REPORT...` (e do caminho
+legado do pack) para `reverse/REVERSE_REPORT...` (mesma regra do Passo 5 geral).
+
+#### Passo V6 — Validação, relatório e commit
+
+1. Nenhum `REVERSE_REPORT*.md` remanescente em `support/`; `reverse/` contém reports +
+   CANDIDATES.md + COVERAGE.md (+ REVERSE_STATE.md quando aplicável); links verdes
+2. Relatório no padrão (`docs/MIGRATION_REPORT.md` — **Modo:** reverse-layer (IMP-142)), com a
+   contagem de candidatas por status final
+3. Commit: `docs: reverse-layer <projeto> to reverse/ layout (IMP-142)`
+
 ## Regras importantes
 
 1. **Nunca mova arquivos que não são do RDD** — só artefatos do mapeamento
@@ -403,6 +475,10 @@ Para cada pasta legado `delivery/<grupo>/RN-NNN — <título>/`:
    tasks→análise: o Feature.md linka a análise via `> Análise:`; a análise
    NUNCA cita tasks, sprints ou delivery. NUNCA renumerar IDs `RN-NNN-M`;
    nunca destruir a pasta legado sem confirmação explícita
+9. **Modo reverse-layer (IMP-142)** — reports append-only mudam SÓ de caminho;
+   a fila viva (`CANDIDATES.md`) e a cobertura (`COVERAGE.md`) são GERADAS retroativamente
+   dos reports, com contagens apuradas (não estimadas) e nunca promovem/rejeitam candidata
+   sozinhas; `migration/` não é criado por este modo
 
 ## Casos de Borda
 
@@ -420,3 +496,7 @@ Para cada pasta legado `delivery/<grupo>/RN-NNN — <título>/`:
 - **Colisão de Feature.md no destino** (glob `delivery/**/RN-NNN — <título> — Feature.md`; fallback: `— Tasks.md` pré-rename) — confirmar sobrescrita/merge no preview.
 - **CONSTITUTION §9 ausente (split-delivery)** — pergunte o estilo e OFEREÇA persistir na §9; recusa → use só para a migração; default `monthly` mantém o `YYYY-MM` original da pasta legado.
 - **Feature com âncora PEND legada (pré-IMP-094)** — migra mantendo a âncora `PEND-NNN` (nunca renumerar para RN) e sinaliza no relatório que a âncora é pré-IMP-094 e deve ser promovida a RN para novas gerações; nunca promove sozinha (IMP-094).
+- **Reports de RE no caminho legado do pack (pré-IMP-142)** — migre para a `reverse/` do produto no modo reverse-layer (o estado real da RE sempre vive no produto, não no pack).
+- **Candidata sem correspondência apurável (reverse-layer)** — entra como `pending` com dono `não-apurado`; a graduação posterior é do ciclo rdd-doc/rdd-requirements — nunca decida na migração.
+- **Report sem seção de regras/endpoints (reverse-layer)** — CANDIDATES.md/COVERAGE.md são criados com a nota "sem candidatas/observações no report" em vez de ficarem ausentes.
+- **Produto com `reverse/` flat (IMP-143)** — permanece flat; o modo reverse-layer nunca sharda retroativamente. Se o gatilho de gigantismo estiver documentado no report/STATE, sinalize a recomendação de shard no MIGRATION_REPORT (o sharding ocorre no próximo reverse).

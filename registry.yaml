@@ -62,12 +62,14 @@ primary_agents:
       - rdd-prompt-gate
       - rdd-drift-detector
       - rdd-wiki-lint
+      - rdd-security-audit
       - rdd-handover
       - rdd-agents-md-sync
       - rdd-legacy-context
       - rdd-traceability
       - rdd-howto
       - rdd-detect-onboarding
+      - rdd-ui-capture
 
   - id: rdd-dev
     description: "Agente principal para sessões de desenvolvimento de código — fluxo de qualidade do domínio Dev: executor → QA independente (rdd-dev-qa) → revisão formal pré-PR (rdd-dev-reviewer) → PR (rdd-gh-pr-creator, só de task aprovada)"
@@ -350,13 +352,14 @@ subagents:
       - rdd-stack-rust
 
   - id: rdd-dev-reviewer
-    description: "Revisao formal pre-PR do diff da task no dominio Dev - (1) RNs cobertas: cada RN da task com mudanca correspondente no diff; (2) quality gates via rdd-quality-gates; (3) itens aplicaveis de specs/SECURITY.md; (4) docs vivas checadas. Veredito approve/request-changes com lista acionavel; nunca edita codigo, nunca commita, nunca cria PR (o rdd-gh-pr-creator so abre PR de task aprovada)"
+    description: "Revisao formal pre-PR do diff da task no dominio Dev - (1) RNs cobertas: cada RN da task com mudanca correspondente no diff; (2) quality gates via rdd-quality-gates; (3) security audit do dif via rdd-security-audit (principios P-01..P-10 da base security-review; SECURITY.md do modulo como piso adicional; fallback a base quando SECURITY.md ausente); (4) docs vivas checadas; (5) eixo compliance quando aplicavel (IMP-102). Veredito approve/request-changes com lista acionavel; nunca edita codigo, nunca commita, nunca cria PR (o rdd-gh-pr-creator so abre PR de task aprovada)"
     registered_by: rdd-dev
     owner: rdd-dev
     available_to:
       - rdd-dev
     invokes:
       - rdd-quality-gates
+      - rdd-security-audit
       - rdd-stack-rust
       - rdd-stack-dotnet-csharp
 
@@ -405,6 +408,9 @@ skills:
   - id: rdd-legacy-context
     domain: documentacao
     description: "Gera LEGACY_CONTEXT.md a partir de sistema/banco existente"
+  - id: rdd-ui-capture
+    domain: documentacao
+    description: "Captura visual runtime do sistema legado via MCP Playwright (golden master de UI) — screenshots por rota/estado (mobile+desktop), requisições observadas e console em reverse/ui/ + manifesto reverse/UI_CAPTURE.md + candidatas visuais na fila reverse/CANDIDATES.md; exige URL de dev/staging declarada no prompt (NUNCA produção) e credenciais de teste (IMP-144)"
 
   # Metaskills (diagnóstico transversal)
   - id: rdd-detect-onboarding
@@ -466,6 +472,9 @@ skills:
   - id: rdd-quality-gates
     domain: qualidade
     description: "Quality gates universal — KISS, YAGNI, DRY, SOLID, testes, segurança, métricas"
+  - id: rdd-security-audit
+    domain: qualidade
+    description: "Security review agêntico (modos dif e baseline) fundado na base knowledge/security-review/KNOWLEDGE.md (OWASP ASVS 5.0.0, Top 10:2025, Secure Code Review Cheat Sheet) — findings com severidade da base (Crítico/Alto bloqueiam via consumidor; Médio/Baixo pendência/backlog); insumo do eixo 3 do rdd-dev-reviewer e baseline de legado no fluxo reverse do rdd-doc; read-only, não emite veredito"
   - id: rdd-project-retrospective
     domain: qualidade
     description: "Retrospectiva pós-projeto — captura aprendizados, padrões e métricas"
@@ -657,6 +666,7 @@ skills:
   - id: rdd-mcp-codegraph-setup
     domain: transversal
     description: "Wizard de configuração do MCP codebase-memory-mcp (DeusData — grafo de conhecimento de código via tree-sitter + Hybrid LSP) — supply-chain obrigatório (SHA-256 + gh attestation SLSA L3 + Defender), config manual no opencode.jsonc global (escopo corrente — servidor agnóstico a repo; projeto só se pedido; install.ps1 NUNCA executado), smoke test index_repository + search_graph; grafo é complemento do grep (P-01)"
+
   - id: rdd-aws-setup
     domain: transversal
     description: "Wizard de configuração do acesso AWS — AWS CLI v2 (winget Amazon.AWSCLI; path padrão documentado), presença do MCP server oficial aws-mcp (só valida — nunca edita o jsonc), credenciais via aws configure --profile interativo no terminal do operador (nunca recebe/imprime/grava segredo), validação sts get-caller-identity e higiene (MFA, rotação, ~/.aws fora de repo); thin wizard — conhecimento de domínio AWS fica nas skills do MCP oficial (ex.: signing-in-to-aws)"
@@ -710,8 +720,10 @@ domains:
       - rdd-legacy-context
       - rdd-traceability
       - rdd-wiki-lint
+      - rdd-security-audit
       - rdd-handover
       - rdd-howto
+      - rdd-ui-capture
 
   requisitos:
     description: "Regras de negócio, clarify, CRs, escopo"
@@ -743,6 +755,7 @@ domains:
     orchestrator: rdd-quality-orchestrator
     skills:
       - rdd-quality-gates
+      - rdd-security-audit
       - rdd-project-retrospective
       - rdd-pattern-extractor
       - rdd-metrics-collector

@@ -1,0 +1,51 @@
+name: "Security Audit dif - SQL concatenado (AP-01) e endpoint sem authZ (AP-02)"
+description: >
+  Dif de task com endpoint novo sem checagem de authZ server-side
+  (AP-02/P-03, severidade Critico) e query SQL concatenada com input do
+  usuario (AP-01/P-02, Critico). O arquivo ProductRepository.cs e
+  controle limpo (query parametrizada) e NAO deve ser citado como finding.
+  A skill NAO emite veredito (papel do rdd-dev-reviewer).
+inputs_required: [diff-summary.md]
+
+checks:
+  - type: file_exists
+    path: "SECURITY_FINDINGS.md"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_FINDINGS.md"
+    pattern: "AP-01"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_FINDINGS.md"
+    pattern: "P-02"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_FINDINGS.md"
+    pattern: "AP-02"
+    severity: error
+
+  - type: contains
+    path: "SECURITY_FINDINGS.md"
+    pattern: "P-03"
+    severity: error
+
+  # controle limpo nao vira finding (regra: relatorio cita apenas arquivos com findings)
+  - type: not_contains
+    path: "SECURITY_FINDINGS.md"
+    pattern: "ProductRepository"
+    severity: error
+
+  # invariante: a skill nunca emite veredito
+  - type: not_contains
+    path: "SECURITY_FINDINGS.md"
+    pattern: "veredito:"
+    severity: error
+
+  - type: line_count_range
+    path: "SECURITY_FINDINGS.md"
+    min: 5
+    max: 60
+    severity: warning

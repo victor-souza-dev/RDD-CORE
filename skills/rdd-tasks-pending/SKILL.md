@@ -111,6 +111,25 @@ com o filesystem. Nenhuma condição é `strict` — diagnóstico nunca trava o 
 
 ## Algoritmo
 
+### Passo 0 — Pré-scan determinístico (R4, IMP-140)
+
+Para cada sistema no escopo, rode o parser determinístico de delivery e
+consuma o `quality/tasks.json` em vez de re-ler/greppar os Feature.md:
+
+```
+node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs tasks <raiz-do-sistema>
+```
+
+- `features[]` (id, título, status normalizado, repos, analise, tasks[]) é a
+  evidência pronta — filtre por `statusNorm` (pendentes = `draft` +
+  `in-progress`; concluídas = `done`) e complete com `pendencias.abertas`.
+- Anomalias no JSON (status fora do vocabulário, 0 tasks) → reporte como
+  "dado não disponível" (modo `warn`), não invente valor.
+- Fallbacks legados (IMP-040/034/032) já resolvidos pelo parser; prioridade
+  Feature > Tasks > pasta > flat > sprint já aplicada (`duplicados` registra
+  descartes). O julgamento textual (ex.: agrupamento para o operador,
+  complemento de issues via `gh`) permanece seu.
+
 ### Passo 1 — Detectar sistemas
 
 `glob` em `<repo-docs>/*/PROJECT_CHARTER.md`. Cada diretório retornado é um

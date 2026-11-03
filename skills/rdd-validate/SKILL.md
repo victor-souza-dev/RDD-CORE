@@ -12,6 +12,32 @@ description: >-
 Percorre o grafo de documentos do projeto e valida a integridade das
 referências e cobertura. Gera `<modulo>/<projeto>/quality/VALIDATION_REPORT.md`.
 
+## Passo 0 — Pré-scan determinístico (R4, IMP-139)
+
+Antes de ler o módulo, rode o scanner determinístico e consuma o JSON —
+as categorias mecânicas (2, cobertura, confiança, links, staleness) vêm
+prontas como evidência; o julgamento (cat. 1, 3, 4) permanece agêntico:
+
+```
+node ~/.config/opencode/skills/rdd-validate/scripts/rdd-scan.mjs <raiz-do-módulo>
+```
+
+- Saída: `<modulo>/quality/scan.json` + resumo de 1 linha no stdout.
+- `ids.quebrados` = cat. 2 pronta; `ids.namespaceMismatch` = sugestão DEC→ADR.
+- `coberturaCandidatos` = candidatos da cat. 1 (presença por ID/range em
+  DATA_MODEL/API_CONTRACTS/UI_SPEC) — julgue "a RN envolve dado/API/UI?" antes de reportar.
+- `confidence` (pareamento contextual com "Confiança") + `calibrado` = insumo
+  do CONFIDENCE_REPORT — emojis de severidade (PEND/riscos) já excluídos.
+- `brokenLinks` e `staleness` = achados bônus (reporte; não falham o gate).
+- `--strict`: exit 1 se houver ref quebrada — use como gate de CI.
+- Regenerar o scan antes de escrever o relatório; nunca editar o scan.json manualmente.
+- **Subcomandos irmãos (IMP-140):** `tasks <raiz>` (delivery → tasks.json),
+  `config` (saúde do workflow → health.json), `diff <repo> --base <b>`
+  (evidência de review), `prop <raiz>` (CRs × PROPAGATION_STATUS). O modo
+  docs também emite `sequenciaRn.gaps` (numeração fora de sequência) e
+  acrescenta 1 linha de drift em `quality/scan-history.jsonl` (consumo do
+  rdd-drift-detector; `--sem-historico` para loops de script).
+
 ## Referências
 
 - Grafo de documentos: `docs/CONSTITUTION.md §15`
@@ -27,6 +53,8 @@ Os artefatos do módulo seguem a estrutura com subpastas (IMP-011):
 - **`quality/`:** TEST_STRATEGY.md, DEFINITION_OF_DONE.md, TRACEABILITY.md, VALIDATION_REPORT.md, PROPAGATION_STATUS.md, PROGRESS_REPORT.md
 - **`delivery/`:** TASKS.md, TASKS_*.md, TASKS_AZURE_CONSOLIDADO.md, SCOPE_AGREEMENT.md, CLIENT_REQUIREMENTS.md, CLIENT_REPORT_*.md, HANDOVER_LOG.md
 - **`support/`:** LEGACY_CONTEXT.md, KNOWN_ERRORS.md, MIGRATION.md, CHANGE_REQUESTS.md
+- **`reverse/`:** REVERSE_REPORT_*.md, REVERSE_STATE.md, CANDIDATES.md, COVERAGE.md (IMP-142); sistema grande pode estar particionado — `reverse/<BC>/` com os mesmos arquivos por Bounded Context + `reverse/reverse-index.md` como TOC (IMP-143). Resolva CANDIDATES/COVERAGE/reports por glob `reverse/**/...` (cobre flat E staged)
+- **`migration/` (opcional):** MIGRATION_PLAN.md, PARITY_CHECKLIST.md, DATA_MAP.md (IMP-142)
 - **`glossaries/`:** DEV_GLOSSARY.md, BUSINESS_GLOSSARY.md, USER_GLOSSARY.md, GLOSSARY.md
 - **`docs/`:** howto/*.md e documentos auxiliares
 - **`meetings/`, `contracts/`:** checkpoints (inalterados)
@@ -141,7 +169,86 @@ Se PROJECT_CHARTER.md do módulo contém `compliance: true` (produto trata dado 
 
 **Severidade:** error (bloqueante — dado pessoal em produção sem verificação LGPD)
 
-### 8. Resiliente a docs ausentes
+### 8. Candidata approved sem RN (IMP-142)
+
+Para cada candidata com status `approved→RN-NNN` nos arquivos `reverse/**/CANDIDATES.md` (flat ou por BC — IMP-143),
+verifique se a RN-NNN existe em REQUIREMENTS.md e carrega a proveniência da
+candidata (evidência/reverse). Produto sem `reverse/` → N/A.
+
+**Severidade:** error (bloqueante — candidata aprovada sem graduação em RN)
+
+### 9. RN de origem reverse sem candidata (IMP-142)
+
+Para cada RN em REQUIREMENTS.md com proveniência de engenharia reversa
+(referência a `reverse/REVERSE_REPORT` ou evidência do report), verifique se
+existe candidata correspondente em `reverse/**/CANDIDATES.md` (flat ou por BC — IMP-143). Produto sem
+`reverse/` → N/A.
+
+**Severidade:** error (bloqueante — RN sem origem rastreada na fila viva)
+
+### 10. reverse/ sem COVERAGE.md (IMP-142)
+
+Se o produto tem `reverse/` com reports mas sem nenhum `COVERAGE.md`
+(glob `reverse/**/COVERAGE.md` — flat ou por BC, IMP-143), a cobertura não
+é comparável entre rodadas (KNOWLEDGE.md v1.2.0 P-11). Skill corretiva:
+`rdd-restructure` (modo reverse-layer gera o retroativo).
+
+**Severidade:** warning
+
+### 11. Pendentes antigos na fila de candidatas (IMP-142)
+
+Candidatas `pending` nos arquivos `reverse/**/CANDIDATES.md` (flat ou por BC — IMP-143) sem mudança de status há 2+
+rodadas (ou mais de 30 dias desde a última movimentação) são re-sinalizadas
+para a devolutiva do `rdd-doc` (KNOWLEDGE.md AP-10 — fila sem dono/movimento é
+anti-pattern). Produto sem `reverse/` → N/A.
+
+**Severidade:** warning
+
+### 12. Anti-gigantismo da camada reverse/ (IMP-143)
+
+Dois checks, ambos **warning** (nunca bloqueiam — o sharding nasce no próximo reverse):
+
+- **Gatilho documentado mas layout flat:** o report (`REVERSE_REPORT_*`) ou o
+  `REVERSE_STATE.md` registra o gatilho de sharding atingido (`>3 BCs` / `>80 tabelas` /
+  `>60 endpoints` / projeção `>1.500 linhas`) e o layout de `reverse/` continua flat
+  (sem pastas `reverse/<BC>/`) → warning `shard por BC recomendado (IMP-143)`.
+- **Staged sem `reverse-index.md`:** `reverse/` com pastas por BC (staged) e
+  `reverse/reverse-index.md` ausente → warning
+  `reverse-index.md ausente — leitura downstream não-seletiva (IMP-143)`.
+
+### 13. Integridade da captura visual (IMP-144)
+
+Três checks sobre a camada de captura visual runtime (`reverse/UI_CAPTURE.md` +
+`reverse/ui/**`):
+
+- **PNG inexistente:** referência a arquivo PNG em `reverse/UI_CAPTURE.md` cujo
+  arquivo não existe em `reverse/ui/**` (resolva os paths relativos ao
+  manifesto) — evidência visual quebrada.
+- **Imagem PII sem marcação:** screenshot listado no manifesto e citado como
+  evidência (em candidatas/report) contendo possível dado pessoal sem a marcação
+  `⚠️ PII` na linha correspondente do manifesto.
+- **Sem captura:** produto sem `reverse/UI_CAPTURE.md` E sem `reverse/ui/` →
+  N/A (a captura visual é opcional — nunca é finding).
+
+**Severidade:** error (PNG referenciado inexistente) | warning (imagem sem
+marcação PII) | N/A (sem captura). Triagem de dado pessoal:
+`rdd-compliance-check` — nunca opine sobre tratamento.
+
+### 14. Agregados reverse com PII sem marcação ⚠️ (IMP-146)
+
+Nos reports `reverse/**/REVERSE_REPORT_*.md` (flat ou por BC — IMP-143),
+cada agregado da seção §2 (Modelo de Dados), verifique se campos cujo nome casa
+padrões de PII (`Cpf`, `Cnpj`, `Email`, `Telefone`/`Celular`, `Endereco`/
+`Endereço`, `DataNascimento`, `NumeroCartao`/cartão e variantes) carregam a
+tag `⚠️ PII`. Campo sensível sem tag → finding (report pré-padronização
+anterior ao IMP-146 ou omissão da Fatia 2 do orchestrator). Produto sem
+`reverse/` → N/A. Triagem de dado pessoal: `rdd-compliance-check` — nunca
+opine sobre tratamento.
+
+**Severidade:** warning (nunca error — reports são append-only, IMP-146;
+a marcação vale para as rodadas novas).
+
+## Resiliência a documentos ausentes
 
 Se TRACEABILITY.md não existir (tier básico), pule validações que dependem
 dele (CR aprovado sem reflexo, RN sem downstream). Valide apenas o que
@@ -177,6 +284,13 @@ status: draft
 | ADR sem campo Decisor | 0 | 1 | ⚠️ |
 | Tabelas novas sem colunas de auditoria | 0 | 0 | ✅ |
 | Compliance obrigatório ausente | 0 | 0 | ✅ |
+| Candidata approved sem RN (reverse/) | 0 | 0 | ✅ |
+| RN de origem reverse sem candidata | 0 | 0 | ✅ |
+| reverse/ sem COVERAGE.md | 0 | 0 | ✅ |
+| Pendentes antigos na fila de candidatas | 0 | 0 | ✅ |
+| Anti-gigantismo reverse/ (IMP-143) | 0 | 0 | ✅ |
+| Integridade da captura visual (IMP-144) | 0 | 0 | ✅ |
+| Agregados reverse com PII sem marcação (IMP-146) | 0 | 0 | ✅ |
 
 ---
 
@@ -238,6 +352,65 @@ status: draft
 | ARCHITECTURE.md | — | ✅ ok | — |
 | REQUIREMENTS.md | 1 warning (RN-015 órfã) | 🟡 warning | rdd-requirements |
 | DECISIONS.md | 1 warning (ADR-001 sem Decisor) | 🟡 warning | rdd-requirements |
+| reverse/CANDIDATES.md | 1 erro (approved sem RN), 1 warning (pending antigo) | erro | rdd-doc / rdd-requirements |
+
+
+---
+
+## 8. Candidata approved sem RN (reverse/)
+
+| Candidata | RN apontada | Problema |
+|---|---|---|
+| #3 (CANDIDATES.md) | RN-021 | RN não existe em REQUIREMENTS.md |
+
+---
+
+## 9. RN de Origem Reverse sem Candidata
+
+| RN | Proveniência | Problema |
+|---|---|---|
+| RN-014 | reverse/REVERSE_REPORT_2026-10-01 | Sem candidata correspondente em CANDIDATES.md |
+
+---
+
+## 10. reverse/ sem COVERAGE.md
+
+| Produto | Detalhe |
+|---|---|
+| <nome> | reverse/ com N reports, COVERAGE.md ausente — cobertura não comparável (P-11) |
+
+---
+
+## 11. Pendentes Antigos na Fila de Candidatas
+
+| Candidata | Status | Última movimentação | Ação |
+|---|---|---|---|
+| #7 (CANDIDATES.md) | pending | 2026-09-01 (3 rodadas) | Re-sinalizar no rdd-doc |
+
+---
+
+## 12. Anti-Gigantismo da Camada reverse/ (IMP-143)
+
+| Check | Produto | Detalhe | Severidade |
+|---|---|---|---|
+| Gatilho documentado, layout flat | <nome> | N BCs / N tabelas / N endpoints no report — shard por BC recomendado | warning |
+| Staged sem reverse-index.md | <nome> | reverse/<BC>/ existente, reverse-index.md ausente | warning |
+
+---
+
+## 13. Integridade da Captura Visual (IMP-144)
+
+| Check | Referência | Problema | Severidade |
+|---|---|---|---|
+| PNG inexistente | `reverse/ui/servicos-novo/erro-validacao-mobile.png` | Citado em UI_CAPTURE.md, arquivo ausente em reverse/ui/ | error |
+| Imagem PII sem marcação | listagem de clientes (UI_CAPTURE.md) | Citada em candidata sem `⚠️ PII` na linha do manifesto | warning |
+
+---
+
+## 14. Agregados Reverse com PII sem Marcação (IMP-146)
+
+| Report §2 — Agregado | Campo | Problema | Severidade | |---|---|---|---|
+| reverse/REVERSE_REPORT_2026-09-19.md — ClienteAgendamento | `email` | Sem tag `⚠️ PII` (pré-padronização) | warning |
 ```
 
 ## Seção Findings por Documento
@@ -291,3 +464,7 @@ Se o usuário passar `--fix`, as seguintes correções automáticas são aplicad
 - **Nenhum achado** — emita relatório `✅ Aprovado`; não invente problemas para preencher o relatório.
 - **ADR antigo sem decisor registrado** — warning apenas; não bloqueie nem exija correção retroativa.
 - **Módulo sem marcadores de confiança** — gere CONFIDENCE_REPORT.md com o aviso "sem calibração de confiança (análise reversa não aplicada)"; isso NUNCA falha o gate (marcadores só existem quando a engenharia reversa foi aplicada).
+- **Produto sem `reverse/`** — as categorias 8-12 e 14 (IMP-142/IMP-143/IMP-146) ficam N/A e não geram finding; `--fix` nunca aplica as categorias 8-11 (graduação de candidata é decisão humana).
+- **Produto sem captura visual** (sem `reverse/UI_CAPTURE.md` e sem `reverse/ui/`) — a categoria 13 (IMP-144) fica N/A; captura é opcional e NUNCA falha o gate.
+- **Report reverse pré-IMP-146** (§2 sem marcação PII): a categoria 14 reporta warning com a nota "pré-padronização" — NUNCA exige reescrita do report (append-only — convenção de errata IMP-146); a marcação vale para as rodadas novas.
+- **`reverse/` flat de sistema pequeno/médio** — layout válido (IMP-143); a categoria 12 só dispara com o gatilho de gigantismo DOCUMENTADO no report/STATE — nunca por estimativa da própria skill.

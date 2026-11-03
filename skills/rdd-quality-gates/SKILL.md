@@ -23,6 +23,9 @@ transversais que se aplicam a qualquer linguagem.
 - Código-fonte do repo alvo (read-only) — arquivos modificados pela task
 - Playbook da stack carregado (se existir) — para comandos de verificação
 - `AGENTS.md` do repo — convenções específicas
+- `~/.config/opencode/knowledge/security-review/KNOWLEDGE.md` — fonte
+  canônica dos critérios de segurança (seção D — OWASP ASVS 5.0.0 e
+  Top 10:2025)
 
 ## Gera (downstream)
 
@@ -180,20 +183,29 @@ public void CalculateTotal_WithValidItems_ReturnsSum()
 
 ## D — Segurança
 
-### OWASP Top 10 — Checklist
+Fonte canônica dos critérios: `knowledge/security-review/KNOWLEDGE.md`
+(OWASP ASVS 5.0.0 + Top 10:2025 + Secure Code Review Cheat Sheet) —
+tabela abaixo atualizada da lista 2021 para a **Top 10:2025** (A03
+Software Supply Chain Failures e A10 Mishandling of Exceptional
+Conditions são novas; Misconfiguration subiu para A02; Injection caiu
+para A05; SSRF foi absorvido em A01). Papéis: esta tabela é referência
+rasa no gate; a **triagem profunda de findings de segurança** é da skill
+`rdd-security-audit` (consumida pelo `rdd-dev-reviewer`, eixo 3).
 
-| # | Risco | Verificação | Severidade |
-|---|-------|-------------|------------|
-| A01 | Broken Access Control | Auth + AuthZ em todos os endpoints | error |
-| A02 | Cryptographic Failures | Usar bibliotecas estabelecidas, sem crypto custom | error |
-| A03 | Injection | Parameterized queries / ORM, nunca SQL concatenado | error |
-| A04 | Insecure Design | Threat modeling para features novas | warning |
-| A05 | Security Misconfiguration | Defaults seguros, config validada | warning |
-| A06 | Vulnerable Components | Dependency scanning (npm audit, cargo audit, etc.) | error |
-| A07 | Auth Failures | Rate limiting, password hashing seguro | error |
-| A08 | Data Integrity | Commits assinados, deployments imutáveis | warning |
-| A09 | Logging Failures | Logging estruturado, sem dados sensíveis nos logs | warning |
-| A10 | SSRF | Validação de input, allowlist de URLs | error |
+### OWASP Top 10:2025 — Checklist
+
+| # | Risco (2025) | Verificação | Severidade |
+|---|--------------|-------------|------------|
+| A01 | Broken Access Control (SSRF absorvido) | Auth + AuthZ server-side por objeto, default deny, sem bypass por API direta (P-03) | error |
+| A02 | Security Misconfiguration | Defaults seguros por ambiente, headers/TLS, debug off em prod, segredos fora do código (P-05) | warning |
+| A03 | Software Supply Chain Failures | Triagem de CVE, versões pinadas, verificação de integridade de artefato/hash (P-06) | error |
+| A04 | Cryptographic Failures | Algoritmos modernos, hash de senha dedicado + salt, CSPRNG, IV/nonce correto (P-07) | error |
+| A05 | Injection | Queries parametrizadas / ORM, encode contextual na saída, allowlist (P-02) | error |
+| A06 | Insecure Design | Abuse cases em features novas, rate limit/quota em fluxos sensíveis (P-10) | warning |
+| A07 | Authentication Failures | Rate limiting, lockout, hash de senha dedicado, gestão de sessão (P-03/P-07) | error |
+| A08 | Software or Data Integrity Failures | Pinning/assinatura de artefatos e updates, pipeline protegido (P-06) | warning |
+| A09 | Security Logging & Alerting Failures | Eventos de segurança logados sem PII e com alerta correlato (P-08) | warning |
+| A10 | Mishandling of Exceptional Conditions | Fail closed, erros sem disclosure de stack/dado sensível (P-04) | error |
 
 ### Validação de Input
 

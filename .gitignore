@@ -38,3 +38,4 @@
 
 # operacional de evals — trends.json mantém o histórico de scores (IMP-121)
 /evals/reports/
+quality/
