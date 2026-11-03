@@ -37,7 +37,13 @@ cd "$REPO_ROOT"
 # Wordlist de neutralidade (ERE, case-insensitive): org, clientes, produtos e
 # identificadores que NÃO podem vazar para o open core.
 # IMP-133: produtos reais da org adicionados (antes só org + 2 clientes/produtos).
-WORDLIST='techminds|orgex|rpg[-_ ]?maker|TM\.RDD\.DOCS|groom|\bPOL\.[0-9]|\bSDA\.[0-9]|\bprj-|vibecut|zumm|lumen|fasto|escola[-_ ]?conectada|assistente[-_ ]?ponto|lord[-_ ]?of[-_ ]?mysteries'
+WORDLIST_FILE="${NEUTRALITY_WORDLIST:-$REPO_ROOT/evals/neutrality/wordlist.local}"
+if [[ -f "$WORDLIST_FILE" ]]; then
+  WORDLIST="$(cat "$WORDLIST_FILE")"
+else
+  # default generico publicado — tokens reais vivem em wordlist.local (nao versionado)
+  WORDLIST='org-a|client-b|produto-a|proj-a'
+fi
 
 LIST="$(mktemp)"
 trap 'rm -f "$LIST"' EXIT

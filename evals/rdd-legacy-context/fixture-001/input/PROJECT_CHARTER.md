@@ -17,7 +17,7 @@ e histórico de dados a preservar.
 
 ## Escopo
 
-- Reaproveitar tabelas legadas existentes (PRJ_BLOQUEIO)
+- Reaproveitar tabelas legadas existentes (SDA_BLOQUEIO)
 - Documentar comportamento vigente antes de alterar
 
 ## Stakeholders

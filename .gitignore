@@ -39,3 +39,6 @@
 # operacional de evals — trends.json mantém o histórico de scores (IMP-121)
 /evals/reports/
 quality/
+
+# wordlist real de neutralidade (tokens reais — nunca versionado)
+/evals/neutrality/wordlist.local

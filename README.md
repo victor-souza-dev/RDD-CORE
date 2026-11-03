@@ -86,9 +86,52 @@ git clone https://github.com/victor-souza-dev/RDD-CORE.git ~/.config/opencode
 > you don't use them, fill with generic values or skip; the workflow works
 > without them.
 
-## Open core architecture
+## Open core architecture — your two private repos + the public engine
 
-Three layers with content precedence **PROFILE > PACK > CORE**:
+You will maintain **two private repositories**, and connect to a third (the
+public one):
+
+- **Your private CORE** (anywhere — GitHub, GitLab, Azure DevOps, local):
+  your working instance of the engine. Workflow improvements you make HERE
+  can go UP to the public CORE (fork + PR — the contribution bridge below).
+- **Your private PACK** (created by `rdd-pack-scaffold`): your organization's
+  content — patterns, accumulated lessons, org rules. Lives wherever you
+  want. Content here STAYS here (only generic patterns get promoted to the
+  public hub).
+- **The public CORE** (this repo): the generic engine everyone shares —
+  releases flow DOWN to your instance (`git pull`); generic improvements flow
+  UP from your private instance (via PR).
+
+### What lives where — and what goes upstream
+
+| Content | Lives in | Goes upstream? |
+|---|---|---|
+| Workflow engine — generic (agents, skills, generic knowledge) | Your private CORE → **public CORE** | ✅ yes — via fork + PR |
+| Workflow engine — your org's tweaks | Your private CORE only | ❌ no (org-specific) |
+| Organization patterns & accumulated lessons | Your private PACK | ❌ no (generic patterns → public hub) |
+| Client profile & settings | Local files (gitignored) | ❌ never |
+| Client/product knowledge | Local/profile only | ❌ never |
+
+### "I improved the engine in my private CORE — how does it reach everyone?"
+
+Your private instance doesn't need to be on GitHub — the bridge is a fork
+plus a second remote:
+
+```bash
+# in your private instance (Azure DevOps, GitLab, local):
+git remote add fork https://github.com/<you>/RDD-CORE.git
+git push fork my-improvement
+# then open the PR against upstream main (the CI of evals gates the merge)
+```
+
+- **Generic improvement** (new skill, better prompts, script fix, generic
+  knowledge) → PR upstream → lands in the public CORE for everyone.
+- **Org-specific tweak** (how YOUR org works) → stays in your private
+  instance/PACK — never upstream.
+- **Client-specific content or knowledge** → local/profile only — never any
+  repo.
+
+### Three layers with content precedence PROFILE > PACK > CORE
 
 ```
 CORE (public — this repo, Apache-2.0 + DCO)

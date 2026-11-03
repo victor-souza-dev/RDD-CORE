@@ -199,7 +199,7 @@ Colunas marcadas como "não usado" podem ser nulas. O módulo simplificado só p
 
 ## Diferenças do template anterior
 
-O formato anterior misturava três níveis — **tabela** (PRJ_BLOQUEIO), **entidade JPA** (BloqueioProdutor com campos Java) e **DTO** (produtorNome). O novo formato documenta APENAS tabelas:
+O formato anterior misturava três níveis — **tabela** (SDA_BLOQUEIO), **entidade JPA** (BloqueioProdutor com campos Java) e **DTO** (produtorNome). O novo formato documenta APENAS tabelas:
 
 | O que mudou | Antes | Agora |
 |---|---|---|

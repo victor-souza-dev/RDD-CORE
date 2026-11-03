@@ -44,10 +44,15 @@ The public repo lives on GitHub — but nothing stops your private RDD instance
 from running on another platform (Azure DevOps, GitLab, self-hosted). Keep two
 environments with distinct roles:
 
-- **Private instance (Azure DevOps/GitLab):** your organization layer —
-  packs, client profiles, knowledge nuances. Day-to-day runs here.
-- **GitHub fork:** the contribution bridge — it's the only place an
-  improvement enters the open core (via PR, with the evals CI as gate).
+- **Your private CORE instance (Azure DevOps/GitLab/wherever):** your working
+  instance of the engine. Generic improvements made here go UP to the public
+  CORE (fork + PR — see "Generic improvement" below).
+- **Your private PACK:** your organization content — patterns, accumulated
+  lessons. Content here stays here (generic patterns → public hub).
+- **The public CORE (this repo):** what everyone shares — you absorb its
+  releases (`git pull`); your generic engine improvements flow back into it.
+  Full picture: `README.md` → "Open core architecture — your two private
+  repos + the public engine".
 
 ### Generic improvement? Contribute it back
 
@@ -58,6 +63,13 @@ improvement was born inside your private instance, extract it to a clone of
 your fork and apply it to the generic subset: what's specific to your
 organization stays in your private layer; what's generic goes back to
 everyone.
+
+```bash
+# your everyday clone (any platform) — add the GitHub fork as second remote
+git remote add fork https://github.com/<you>/RDD-CORE.git
+git push fork my-improvement
+# then open the PR against upstream main (CI of evals gates the merge)
+```
 
 ### Syncing your instance with public releases
 

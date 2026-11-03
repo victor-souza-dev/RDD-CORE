@@ -83,9 +83,54 @@ git clone https://github.com/victor-souza-dev/RDD-CORE.git ~/.config/opencode
 > infraestrutura — se você não usa, preencha com valores genéricos ou pule; o
 > workflow funciona sem eles.
 
-## Arquitetura open core
+## Arquitetura open core — seus dois repos privados + o motor público
 
-Três camadas com precedência de conteúdo **PROFILE > PACK > CORE**:
+Você vai manter **dois repositórios privados**, e se conectar a um terceiro
+(o público):
+
+- **Seu CORE privado** (em qualquer lugar — GitHub, GitLab, Azure DevOps,
+  local): sua instância de trabalho do motor. Melhorias de workflow que você
+  fizer AQUI podem subir para o CORE público (fork + PR — a ponte de
+  contribuição abaixo).
+- **Seu PACK privado** (criado pelo `rdd-pack-scaffold`): o conteúdo da sua
+  organização — patterns, lições acumuladas, regras da org. Fica onde você
+  quiser. Conteúdo aqui FICA aqui (só patterns genéricos são promovidos ao
+  hub público).
+- **O CORE público** (este repo): o motor genérico que todos compartilham —
+  releases descem para a sua instância (`git pull`); melhorias genéricas
+  sobem da sua instância privada (via PR).
+
+### Onde fica o quê — e o que sobe
+
+| Conteúdo | Onde vive | Sobe upstream? |
+|---|---|---|
+| Motor do workflow — genérico (agents, skills, conhecimento genérico) | Seu CORE privado → **CORE público** | ✅ sim — via fork + PR |
+| Motor do workflow — ajustes da sua org | Só no seu CORE privado | ❌ não (específico da org) |
+| Patterns e lições acumuladas da organização | Seu PACK privado | ❌ não (patterns genéricos → hub público) |
+| Perfil de clientes e configurações | Arquivos locais (gitignored) | ❌ nunca |
+| Conhecimento/conteúdo de clientes | Local/perfil apenas | ❌ nunca |
+
+### "Melhorei o motor no meu CORE privado — como chega para todos?"
+
+Sua instância privada não precisa estar no GitHub — a ponte é um fork
+mais um segundo remote:
+
+```bash
+# na sua instância privada (Azure DevOps, GitLab, local):
+git remote add fork https://github.com/<voce>/RDD-CORE.git
+git push fork minha-melhoria
+# então abra a PR contra a main upstream (a CI de evals é o gate do merge)
+```
+
+- **Melhoria genérica** (skill nova, prompts melhores, fix de script,
+  conhecimento genérico) → PR upstream → aterrissa no CORE público para
+  todos.
+- **Ajuste específico da org** (como a SUA org trabalha) → fica na sua
+  instância/PACK privados — nunca upstream.
+- **Conteúdo/knowledge de cliente** → local/perfil apenas — nunca em
+  nenhum repo.
+
+### Três camadas com precedência PROFILE > PACK > CORE
 
 ```
 CORE (público — este repo, Apache-2.0 + DCO)

@@ -20,7 +20,7 @@ Checklists padronizadas para revisão de skills, subagents e primary agents do R
 
 ### Front Matter
 - [ ] `name:` == nome da pasta, lowercase-hyphen, ≤ 64 chars
-- [ ] `name:` usa prefixo `rdd-` (exceção: skills externas `prj-test-generator`, `prj-*`)
+- [ ] `name:` usa prefixo `rdd-` (exceção: skills externas de projeto, com prefixo próprio da organização)
 - [ ] `description:` explica o que faz + triggers ("Use quando...", palavras-chave)
 - [ ] **Sem campo `tools:`** — proibido; o campo correto é `permission:` (na skill, permissões são do agent que a invoca)
 

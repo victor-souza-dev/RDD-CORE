@@ -21,14 +21,14 @@ status: draft
 
 ## 2. Tabelas legadas
 
-### PRJ_BLOQUEIO
+### SDA_BLOQUEIO
 
 Tabela única de bloqueios, com situação em flag (não há tabela de histórico
 de eventos — o legado não preserva trilha de alterações além das colunas CTR_*).
 
 | Coluna | Tipo | Obrigatório | PK/FK | Descrição |
 |---|---|---|---|---|
-| NRO_INT_BLOQUEIO | NUMBER(10) | Sim | PK | ID do bloqueio (SEQ_PRJ_BLOQUEIO) |
+| NRO_INT_BLOQUEIO | NUMBER(10) | Sim | PK | ID do bloqueio (SEQ_SDA_BLOQUEIO) |
 | NRO_INT_PRODUTOR | NUMBER(10) | Sim | — | Produtor bloqueado (índice IDX_BLOQ_PRODUTOR) |
 | TXT_MOTIVO | VARCHAR2(400) | Não | — | Motivo do bloqueio |
 | DTH_INICIO | DATE | Sim | — | Início (default SYSDATE) |
@@ -57,7 +57,7 @@ de eventos — o legado não preserva trilha de alterações além das colunas C
 
 | Legado | Novo módulo |
 |---|---|
-| PRJ_BLOQUEIO | BLOQUEIO |
+| SDA_BLOQUEIO | BLOQUEIO |
 | NRO_INT_BLOQUEIO | COD_BLOQUEIO |
 | FLG_SITUACAO ('A'/'E') | FLG_ATIVO ('S'/'N') ou status |
 | TXT_MOTIVO (400) | TXT_MOTIVO (500) |

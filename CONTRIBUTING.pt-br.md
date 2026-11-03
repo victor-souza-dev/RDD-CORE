@@ -45,10 +45,20 @@ O repo público vive no GitHub — mas nada impede que sua instância privada do
 RDD rode em outra plataforma (Azure DevOps, GitLab, servidor próprio). Nesse
 caso, mantenha dois ambientes com papéis distintos:
 
-- **Instância privada (Azure DevOps/GitLab):** sua camada da organização —
-  packs, perfil de clientes, nuances de conhecimento. É onde o dia a dia roda.
-- **Fork no GitHub:** a ponte de contribuição — é o único lugar de onde uma
-  melhoria entra no open core (via PR, com CI de evals como gate).
+- **Seu CORE privado (Azure DevOps/GitLab/onde quiser):** sua instância de
+  trabalho do motor. Melhorias genéricas feitas aqui SOBEM para o CORE
+  público (fork + PR — veja "Melhoria genérica" abaixo).
+- **Seu PACK privado:** o conteúdo da sua organização — patterns, lições
+  acumuladas. Conteúdo aqui fica aqui (patterns genéricos → hub público).
+- **O CORE público (este repo):** o que todos compartilham — você absorve as
+  releases dele (`git pull`); suas melhorias genéricas de motor voltam para
+  ele.
+  Quadro completo: `README.md` → "Arquitetura open core — seus dois repos
+  privados + o motor público".
+- **Dois repos, dois papéis:** melhorias de motor (genéricas — skills, agents,
+  scripts) → fork do CORE → PR upstream. Conteúdo da organização (patterns,
+  lições acumuladas) → só no seu PACK — nunca upstream. Quadro completo:
+  `README.md` → "Arquitetura open core — dois repositórios, três camadas".
 
 ### Melhoria genérica? Contribua de volta
 
@@ -58,6 +68,14 @@ dos contribuidores externos acima (anonimização + neutrality + DCO). Se a
 melhoria nasceu dentro da sua instância privada, extraia-a para um clone do
 seu fork e aplique no subset genérico: o que é específico da sua organização
 permanece na sua camada privada; o que é genérico volta para todos.
+
+```bash
+# seu clone do dia a dia (qualquer plataforma) — adiciona o fork do GitHub
+# como segundo remote
+git remote add fork https://github.com/<voce>/RDD-CORE.git
+git push fork minha-melhoria
+# então abra a PR contra a main upstream (CI de evals é o gate do merge)
+```
 
 ### Sincronizando sua instância com as releases públicas
 

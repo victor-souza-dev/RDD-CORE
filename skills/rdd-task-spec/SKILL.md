@@ -164,7 +164,7 @@ CONSTITUTION.md §9 ───────┘  (delivery_style + tracker)
    - Identificar quais RNs cada endpoint implementa
 
 4. **DATA_MODEL.md**
-   - Tabelas envolvidas: nome real da tabela (ex: `PRJ_BLOQUEIO`), colunas, PKs, FKs
+   - Tabelas envolvidas: nome real da tabela (ex: `SDA_BLOQUEIO`), colunas, PKs, FKs
    - Relacionamentos entre tabelas
    - Mapeamento de colunas para uso no template "Tabelas de referência" e "Query de referência"
 
@@ -569,7 +569,7 @@ Cada task DEVE conter:
 
 1. **Path params e Query params** — listagem exaustiva com tipos
 2. **Contrato request/response** — JSON completo com tipos dos campos
-3. **Tabelas de referência** — nome real da tabela (ex: `PRJ_BLOQUEIO`, não `BloqueioProdutor`), colunas envolvidas (ex: `NRO_INT_PESSOA_FISICA`, não `produtorId`), propósito. Extrair de DATA_MODEL.md.
+3. **Tabelas de referência** — nome real da tabela (ex: `SDA_BLOQUEIO`, não `BloqueioProdutor`), colunas envolvidas (ex: `NRO_INT_PESSOA_FISICA`, não `produtorId`), propósito. Extrair de DATA_MODEL.md.
 4. **Query de referência (se legado existe)** — SQL do sistema legado que o novo código precisa ser compatível (ex: WHERE clauses, joins)
 5. **Validações e erros** — mapear cada validação para um código de erro e status HTTP
 6. **Critério de aceitação** — no formato Dado/Quando/Então
